@@ -192,7 +192,7 @@
     <div class="tbl-tools">
       <div><h3 style="display:inline">Most productive authors</h3>
         <span class="ph-sub" style="margin-left:8px" id="tblNote"></span></div>
-      <input class="search" id="search" placeholder="Search author…">
+      <input class="search" id="search" placeholder="Search author, university, or journal…">
     </div>
     <div class="tbl-scroll">
     <table id="authTbl">
@@ -230,6 +230,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":4935,"records":18856,"
   const INK="#1E2933",MUTED="#667085",GRID="#EAEBE8";
   const Y0=DATA.meta.years[0], Y1=DATA.meta.years[1];
   const JAB=DATA.jabbr, JF=JAB.map(ab=>DATA.journalMap[ab].field);
+  const JNLC=JAB.map(ab=>DATA.journalMap[ab].name.toLowerCase());
   const UNISET=new Set(DATA.inst.filter(Boolean));
   let lo=Y0,hi=Y1,journalSel="ALL",uniSel="ALL",query="",sortK="total",sortDir=-1;
   Chart.defaults.font.family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif";
@@ -253,8 +254,8 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":4935,"records":18856,"
     for(const p of DATA.papers){const y=p[0],a=p[1],j=p[2];
       if(y<lo||y>hi||!jpass(j)||!upass(a))continue;
       let o=m.get(a);
-      if(!o){o={a,author:DATA.names[a],inst:DATA.inst[a]||"",ja:(DATA.ja[a]||0),total:0,mkt:0,non:0,ys:new Set()};m.set(a,o);}
-      o.total++; if(JF[j]==="Marketing")o.mkt++; else o.non++; o.ys.add(y);}
+      if(!o){o={a,author:DATA.names[a],inst:DATA.inst[a]||"",ja:(DATA.ja[a]||0),total:0,mkt:0,non:0,ys:new Set(),js:new Set()};m.set(a,o);}
+      o.total++; if(JF[j]==="Marketing")o.mkt++; else o.non++; o.ys.add(y); o.js.add(j);}
     const arr=[...m.values()]; for(const o of arr){o.yrs=o.ys.size; o.pct=o.total?+(o.non/o.total*100).toFixed(1):0; delete o.ys;}
     return arr;
   }
@@ -345,7 +346,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":4935,"records":18856,"
   const NOTE={total:"total papers",mkt:"marketing",non:"non-marketing",pct:"non-mktg %",yrs:"active years",ja:"just-accepted",inst:"university",author:"name"};
   function renderTable(){
     let rows=authorAgg();
-    if(query)rows=rows.filter(r=>r.author.toLowerCase().includes(query)||(r.inst||"").toLowerCase().includes(query));
+    if(query)rows=rows.filter(r=>r.author.toLowerCase().includes(query)||(r.inst||"").toLowerCase().includes(query)||[...r.js].some(j=>JNLC[j].includes(query)));
     rows.sort((a,b)=>{const x=a[sortK],y=b[sortK];return (sortK==="author"||sortK==="inst")?sortDir*(""+x).localeCompare(""+y):sortDir*(x-y);});
     const max=Math.max(1,...rows.map(r=>r.total));
     $("tbody").innerHTML=rows.map((r,i)=>'<tr>'+
