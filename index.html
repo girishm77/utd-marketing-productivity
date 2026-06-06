@@ -120,10 +120,8 @@
   .dclose:hover{color:var(--ink);}
   .drawer-bd{position:fixed;inset:0;background:rgba(20,30,40,.25);opacity:0;pointer-events:none;transition:opacity .25s;z-index:49;}
   .drawer-bd.open{opacity:1;pointer-events:auto;}
-  .authlink{cursor:pointer;}
-  .authlink:hover{color:var(--orange);text-decoration:underline;}
-  .unilink{cursor:pointer;}
-  .unilink:hover{color:var(--orange);text-decoration:underline;}
+  tbody td.authlink,tbody td.unilink{cursor:pointer;color:#3B6EA8;text-decoration:underline;text-decoration-color:rgba(59,110,168,.45);text-underline-offset:2px;}
+  tbody td.authlink:hover,tbody td.unilink:hover{color:#244e86;text-decoration-color:#244e86;background:#eef3f8;}
   footer{margin-top:30px;color:var(--muted);font-size:11px;border-top:1px solid var(--line);padding-top:16px;line-height:1.6;}
   @media(max-width:980px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}}
   @media(max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}}
@@ -195,7 +193,8 @@
   <div class="panel full">
     <div class="tbl-tools">
       <div><h3 style="display:inline">Most productive authors</h3>
-        <span class="ph-sub" style="margin-left:8px" id="tblNote"></span></div>
+        <span class="ph-sub" style="margin-left:8px" id="tblNote"></span>
+        <div class="ph-sub" style="margin-top:3px">Tip: click a blue author or university name to see their journal distribution.</div></div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <select id="journalSel" class="sel" style="min-width:170px"></select>
         <input class="search" id="search" placeholder="Search author or university…">
