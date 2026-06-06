@@ -122,6 +122,8 @@
   .drawer-bd.open{opacity:1;pointer-events:auto;}
   .authlink{cursor:pointer;}
   .authlink:hover{color:var(--orange);text-decoration:underline;}
+  .unilink{cursor:pointer;}
+  .unilink:hover{color:var(--orange);text-decoration:underline;}
   footer{margin-top:30px;color:var(--muted);font-size:11px;border-top:1px solid var(--line);padding-top:16px;line-height:1.6;}
   @media(max-width:980px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}}
   @media(max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}}
@@ -242,6 +244,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":4935,"records":18856,"
 (function(){
   const $=id=>document.getElementById(id);
   const fmt=n=>n.toLocaleString();
+  const esc=s=>(""+(s||"")).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
   const FCOL={"Marketing":"#C75B12","Operations/Management Science":"#3B6EA8",
     "Management/Strategy":"#2A9D8F","Information Systems":"#C8962E",
     "International Business":"#2F7D66","Finance":"#A9413B","Accounting":"#7E6CA8"};
@@ -250,7 +253,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":4935,"records":18856,"
   const JAB=DATA.jabbr, JF=JAB.map(ab=>DATA.journalMap[ab].field);
   const JNLC=JAB.map(ab=>DATA.journalMap[ab].name.toLowerCase());
   const UNISET=new Set(DATA.inst.filter(Boolean));
-  let lo=Y0,hi=Y1,journalSel="ALL",uniSel="ALL",query="",sortK="total",sortDir=-1,curAuthor=null;
+  let lo=Y0,hi=Y1,journalSel="ALL",uniSel="ALL",query="",sortK="total",sortDir=-1,cur=null;
   Chart.defaults.font.family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif";
   Chart.defaults.color=MUTED; Chart.defaults.font.size=12;
 
@@ -372,46 +375,42 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":4935,"records":18856,"
       '<td class="bar-cell"><div class="barbg" style="width:'+((r.total/max*100)*0.9)+'%"></div><span>'+fmt(r.total)+'</span></td>'+
       '<td>'+fmt(r.mkt)+'</td><td>'+fmt(r.non)+'</td><td>'+r.pct+'%</td><td>'+r.yrs+'</td>'+
       '<td>'+(r.ja?'<span class="pill" style="background:rgba(47,125,102,.16);color:#2F7D66">'+r.ja+'</span>':'<span style="color:#b6bcc6">·</span>')+'</td>'+
-      '<td style="text-align:left">'+(r.inst||'—')+'</td></tr>').join("");
+      (r.inst?'<td class="unilink" data-uni="'+esc(r.inst)+'" style="text-align:left">'+esc(r.inst)+'</td>':'<td style="text-align:left">—</td>')+'</tr>').join("");
     const jl=journalSel==="ALL"?"all journals":(journalSel==="MKT"?"marketing journals":journalSel);
     $("tblNote").textContent=fmt(rows.length)+" authors · "+lo+"–"+hi+" · "+jl+" · sorted by "+NOTE[sortK];
     document.querySelectorAll("thead th").forEach(th=>th.classList.toggle("sorted",th.dataset.k===sortK));
   }
 
-  // ---------- author drawer: papers-by-journal ----------
+  // ---------- detail drawer: papers-by-journal (author or university) ----------
   let authPie=null;
   const PIE=["#C75B12","#3B6EA8","#2F7D66","#2A9D8F","#C8962E","#A9413B","#7E6CA8","#5B8C5A","#B5651D","#4C72B0","#9C6B30","#D17BA6","#46566A","#6AA84F","#8E7CC3"];
-  function authorDist(idx){
-    const cnt={};let total=0;
-    for(const p of DATA.papers){const y=p[0],a=p[1],j=p[2];if(a!==idx||y<lo||y>hi)continue;cnt[j]=(cnt[j]||0)+1;total++;}
-    const rows=Object.keys(cnt).map(j=>({name:DATA.journalMap[JAB[+j]].name,field:JF[+j],v:cnt[j]})).sort((x,y)=>y.v-x.v);
-    return {rows,total};
-  }
-  function openAuthor(idx){
-    curAuthor=idx;const r=authorDist(idx),rows=r.rows,total=r.total;
-    const mkt=rows.filter(x=>x.field==="Marketing").reduce((s,x)=>s+x.v,0);
-    $("dName").textContent=DATA.names[idx];
-    $("dMeta").innerHTML=(DATA.inst[idx]||"\u2014")+" \u00b7 "+total+" papers ("+lo+"\u2013"+hi+") \u00b7 "+mkt+" mktg / "+(total-mkt)+" non-mktg"+(DATA.ja[idx]?" \u00b7 "+DATA.ja[idx]+" just-accepted":"");
+  function distRows(cnt){return Object.keys(cnt).map(j=>({name:DATA.journalMap[JAB[+j]].name,field:JF[+j],v:cnt[j]})).sort((x,y)=>y.v-x.v);}
+  function authorDist(idx){const cnt={};let total=0;for(const p of DATA.papers){const y=p[0],a=p[1],j=p[2];if(a!==idx||y<lo||y>hi)continue;cnt[j]=(cnt[j]||0)+1;total++;}return {rows:distRows(cnt),total};}
+  function uniDist(uni){const cnt={};let total=0;const au=new Set();for(const p of DATA.papers){const y=p[0],a=p[1],j=p[2];if((DATA.inst[a]||"")!==uni||y<lo||y>hi)continue;cnt[j]=(cnt[j]||0)+1;total++;au.add(a);}return {rows:distRows(cnt),total,authors:au.size};}
+  function renderDist(title,metaHTML,rows,total){
+    $("dName").textContent=title;$("dMeta").innerHTML=metaHTML;
     const labels=rows.map(x=>x.name),data=rows.map(x=>x.v),colors=rows.map((x,i)=>PIE[i%PIE.length]);
     const tip={callbacks:{label:c=>c.label+": "+c.parsed+" ("+(total?Math.round(c.parsed/total*100):0)+"%)"}};
-    if(!authPie){
-      authPie=new Chart($("authPie"),{type:"doughnut",data:{labels,datasets:[{data,backgroundColor:colors,borderColor:"#fff",borderWidth:1.5}]},
-        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:tip}}});
-    } else {authPie.data.labels=labels;authPie.data.datasets[0].data=data;authPie.data.datasets[0].backgroundColor=colors;authPie.options.plugins.tooltip=tip;authPie.update();}
-    $("dList").innerHTML=rows.map((x,i)=>'<div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:4px 0;border-bottom:1px solid #eef0ee"><span><span class="dot" style="background:'+PIE[i%PIE.length]+'"></span> '+x.name+'</span><b>'+x.v+'</b></div>').join("");
+    if(!authPie){authPie=new Chart($("authPie"),{type:"doughnut",data:{labels,datasets:[{data,backgroundColor:colors,borderColor:"#fff",borderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:tip}}});}
+    else{authPie.data.labels=labels;authPie.data.datasets[0].data=data;authPie.data.datasets[0].backgroundColor=colors;authPie.options.plugins.tooltip=tip;authPie.update();}
+    $("dList").innerHTML=rows.map((x,i)=>'<div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:4px 0;border-bottom:1px solid #eef0ee"><span><span class="dot" style="background:'+PIE[i%PIE.length]+'"></span> '+esc(x.name)+'</span><b>'+x.v+'</b></div>').join("");
     $("drawer").classList.add("open");$("drawerBd").classList.add("open");$("drawer").setAttribute("aria-hidden","false");
   }
-  function closeDrawer(){curAuthor=null;$("drawer").classList.remove("open");$("drawerBd").classList.remove("open");$("drawer").setAttribute("aria-hidden","true");}
+  function openAuthor(idx){cur={k:"a",id:idx};const d=authorDist(idx),mkt=d.rows.filter(x=>x.field==="Marketing").reduce((s,x)=>s+x.v,0);
+    renderDist(DATA.names[idx],esc(DATA.inst[idx]||"\u2014")+" \u00b7 "+d.total+" papers ("+lo+"\u2013"+hi+") \u00b7 "+mkt+" mktg / "+(d.total-mkt)+" non-mktg"+(DATA.ja[idx]?" \u00b7 "+DATA.ja[idx]+" just-accepted":""),d.rows,d.total);}
+  function openUni(uni){cur={k:"u",id:uni};const d=uniDist(uni),mkt=d.rows.filter(x=>x.field==="Marketing").reduce((s,x)=>s+x.v,0);
+    renderDist(uni,d.authors+" authors \u00b7 "+d.total+" papers ("+lo+"\u2013"+hi+") \u00b7 "+mkt+" mktg / "+(d.total-mkt)+" non-mktg",d.rows,d.total);}
+  function closeDrawer(){cur=null;$("drawer").classList.remove("open");$("drawerBd").classList.remove("open");$("drawer").setAttribute("aria-hidden","true");}
   $("dclose").addEventListener("click",closeDrawer);
   $("drawerBd").addEventListener("click",closeDrawer);
   document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer();});
-  $("tbody").addEventListener("click",e=>{const td=e.target.closest("td.authlink");if(!td)return;const tr=td.closest("tr[data-ai]");if(tr)openAuthor(+tr.dataset.ai);});
+  $("tbody").addEventListener("click",e=>{const u=e.target.closest("td.unilink");if(u){openUni(u.dataset.uni);return;}const td=e.target.closest("td.authlink");if(td){const tr=td.closest("tr[data-ai]");if(tr)openAuthor(+tr.dataset.ai);}});
 
   const rLo=$("rLo"),rHi=$("rHi"),fill=$("fill");
   function paint(){const a=(lo-Y0)/(Y1-Y0)*100,b=(hi-Y0)/(Y1-Y0)*100;fill.style.left=a+"%";fill.style.width=(b-a)+"%";
     $("yLo").textContent=lo;$("yHi").textContent=hi;$("periodBadge").textContent=lo+" – "+hi;}
   function syncPresets(){document.querySelectorAll(".preset").forEach(p=>p.classList.toggle("active",+p.dataset.lo===lo&&+p.dataset.hi===hi));}
-  function refresh(){paint();renderKpis();renderTrend();renderShare();renderFields();renderJournals();renderTable();syncPresets();if(curAuthor!=null)openAuthor(curAuthor);}
+  function refresh(){paint();renderKpis();renderTrend();renderShare();renderFields();renderJournals();renderTable();syncPresets();if(cur){cur.k==="u"?openUni(cur.id):openAuthor(cur.id);}}
 
   (function initSelectors(){
     const opts=['<option value="ALL">All journals</option>','<option value="MKT">Marketing journals (4)</option>'];
