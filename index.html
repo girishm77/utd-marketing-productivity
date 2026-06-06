@@ -111,6 +111,17 @@
 
   .tbl-scroll{max-height:600px;overflow:auto;border:1px solid var(--line);border-radius:8px;}
   .tbl-scroll thead th{position:sticky;top:0;background:var(--card);z-index:2;box-shadow:0 1px 0 var(--line);}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:430px;max-width:92vw;background:var(--card);box-shadow:-8px 0 30px rgba(20,30,40,.18);transform:translateX(100%);transition:transform .25s ease;z-index:50;display:flex;flex-direction:column;}
+  .drawer.open{transform:translateX(0);}
+  .drawer .dh{position:relative;padding:20px 22px 14px;border-bottom:1px solid var(--line);}
+  .drawer .dh h3{margin:0;font-size:18px;font-weight:700;font-family:Georgia,serif;}
+  .drawer .db{padding:18px 22px;overflow:auto;}
+  .dclose{position:absolute;top:14px;right:16px;cursor:pointer;font-size:24px;color:var(--muted);background:none;border:none;line-height:1;}
+  .dclose:hover{color:var(--ink);}
+  .drawer-bd{position:fixed;inset:0;background:rgba(20,30,40,.25);opacity:0;pointer-events:none;transition:opacity .25s;z-index:49;}
+  .drawer-bd.open{opacity:1;pointer-events:auto;}
+  .authlink{cursor:pointer;}
+  .authlink:hover{color:var(--orange);text-decoration:underline;}
   footer{margin-top:30px;color:var(--muted);font-size:11px;border-top:1px solid var(--line);padding-top:16px;line-height:1.6;}
   @media(max-width:980px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}}
   @media(max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}}
@@ -211,6 +222,19 @@
     Source: UTD Top-100 Business School Research Rankings extract · marketing-home cohort (n=4,934; full-career home field = Marketing, name variants consolidated), author names normalized · papers de-duplicated to one per author per article · 24 UTD journals.
     Counts are descriptive; see the spillover analysis for causal caveats. <br><b>Just acc.</b> = forthcoming / online-first papers (online but not yet assigned to a print issue), checked for the four marketing journals plus Management Science — Journal of Marketing, Journal of Marketing Research, Marketing Science, Journal of Consumer Research, and Management Science — via the Crossref API; this count is not year-filtered.
   </footer>
+  <div class="drawer-bd" id="drawerBd"></div>
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="dh">
+      <button class="dclose" id="dclose" title="Close">×</button>
+      <h3 id="dName">Author</h3>
+      <div id="dMeta" class="ph-sub" style="margin-top:6px"></div>
+    </div>
+    <div class="db">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:700;letter-spacing:1px">PAPERS BY JOURNAL</div>
+      <div style="position:relative;height:300px"><canvas id="authPie"></canvas></div>
+      <div id="dList" style="margin-top:16px"></div>
+    </div>
+  </aside>
 </div>
 
 <script>
@@ -226,7 +250,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":4935,"records":18856,"
   const JAB=DATA.jabbr, JF=JAB.map(ab=>DATA.journalMap[ab].field);
   const JNLC=JAB.map(ab=>DATA.journalMap[ab].name.toLowerCase());
   const UNISET=new Set(DATA.inst.filter(Boolean));
-  let lo=Y0,hi=Y1,journalSel="ALL",uniSel="ALL",query="",sortK="total",sortDir=-1;
+  let lo=Y0,hi=Y1,journalSel="ALL",uniSel="ALL",query="",sortK="total",sortDir=-1,curAuthor=null;
   Chart.defaults.font.family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif";
   Chart.defaults.color=MUTED; Chart.defaults.font.size=12;
 
@@ -343,8 +367,8 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":4935,"records":18856,"
     if(query)rows=rows.filter(r=>r.author.toLowerCase().includes(query)||(r.inst||"").toLowerCase().includes(query));
     rows.sort((a,b)=>{const x=a[sortK],y=b[sortK];return (sortK==="author"||sortK==="inst")?sortDir*(""+x).localeCompare(""+y):sortDir*(x-y);});
     const max=Math.max(1,...rows.map(r=>r.total));
-    $("tbody").innerHTML=rows.map((r,i)=>'<tr>'+
-      '<td>'+(i+1)+'</td><td>'+r.author+'</td>'+
+    $("tbody").innerHTML=rows.map((r,i)=>'<tr data-ai="'+r.a+'">'+
+      '<td>'+(i+1)+'</td><td class="authlink">'+r.author+'</td>'+
       '<td class="bar-cell"><div class="barbg" style="width:'+((r.total/max*100)*0.9)+'%"></div><span>'+fmt(r.total)+'</span></td>'+
       '<td>'+fmt(r.mkt)+'</td><td>'+fmt(r.non)+'</td><td>'+r.pct+'%</td><td>'+r.yrs+'</td>'+
       '<td>'+(r.ja?'<span class="pill" style="background:rgba(47,125,102,.16);color:#2F7D66">'+r.ja+'</span>':'<span style="color:#b6bcc6">·</span>')+'</td>'+
@@ -354,11 +378,40 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":4935,"records":18856,"
     document.querySelectorAll("thead th").forEach(th=>th.classList.toggle("sorted",th.dataset.k===sortK));
   }
 
+  // ---------- author drawer: papers-by-journal ----------
+  let authPie=null;
+  const PIE=["#C75B12","#3B6EA8","#2F7D66","#2A9D8F","#C8962E","#A9413B","#7E6CA8","#5B8C5A","#B5651D","#4C72B0","#9C6B30","#D17BA6","#46566A","#6AA84F","#8E7CC3"];
+  function authorDist(idx){
+    const cnt={};let total=0;
+    for(const p of DATA.papers){const y=p[0],a=p[1],j=p[2];if(a!==idx||y<lo||y>hi)continue;cnt[j]=(cnt[j]||0)+1;total++;}
+    const rows=Object.keys(cnt).map(j=>({name:DATA.journalMap[JAB[+j]].name,field:JF[+j],v:cnt[j]})).sort((x,y)=>y.v-x.v);
+    return {rows,total};
+  }
+  function openAuthor(idx){
+    curAuthor=idx;const r=authorDist(idx),rows=r.rows,total=r.total;
+    const mkt=rows.filter(x=>x.field==="Marketing").reduce((s,x)=>s+x.v,0);
+    $("dName").textContent=DATA.names[idx];
+    $("dMeta").innerHTML=(DATA.inst[idx]||"\u2014")+" \u00b7 "+total+" papers ("+lo+"\u2013"+hi+") \u00b7 "+mkt+" mktg / "+(total-mkt)+" non-mktg"+(DATA.ja[idx]?" \u00b7 "+DATA.ja[idx]+" just-accepted":"");
+    const labels=rows.map(x=>x.name),data=rows.map(x=>x.v),colors=rows.map((x,i)=>PIE[i%PIE.length]);
+    const tip={callbacks:{label:c=>c.label+": "+c.parsed+" ("+(total?Math.round(c.parsed/total*100):0)+"%)"}};
+    if(!authPie){
+      authPie=new Chart($("authPie"),{type:"doughnut",data:{labels,datasets:[{data,backgroundColor:colors,borderColor:"#fff",borderWidth:1.5}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:tip}}});
+    } else {authPie.data.labels=labels;authPie.data.datasets[0].data=data;authPie.data.datasets[0].backgroundColor=colors;authPie.options.plugins.tooltip=tip;authPie.update();}
+    $("dList").innerHTML=rows.map((x,i)=>'<div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:4px 0;border-bottom:1px solid #eef0ee"><span><span class="dot" style="background:'+PIE[i%PIE.length]+'"></span> '+x.name+'</span><b>'+x.v+'</b></div>').join("");
+    $("drawer").classList.add("open");$("drawerBd").classList.add("open");$("drawer").setAttribute("aria-hidden","false");
+  }
+  function closeDrawer(){curAuthor=null;$("drawer").classList.remove("open");$("drawerBd").classList.remove("open");$("drawer").setAttribute("aria-hidden","true");}
+  $("dclose").addEventListener("click",closeDrawer);
+  $("drawerBd").addEventListener("click",closeDrawer);
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer();});
+  $("tbody").addEventListener("click",e=>{const td=e.target.closest("td.authlink");if(!td)return;const tr=td.closest("tr[data-ai]");if(tr)openAuthor(+tr.dataset.ai);});
+
   const rLo=$("rLo"),rHi=$("rHi"),fill=$("fill");
   function paint(){const a=(lo-Y0)/(Y1-Y0)*100,b=(hi-Y0)/(Y1-Y0)*100;fill.style.left=a+"%";fill.style.width=(b-a)+"%";
     $("yLo").textContent=lo;$("yHi").textContent=hi;$("periodBadge").textContent=lo+" – "+hi;}
   function syncPresets(){document.querySelectorAll(".preset").forEach(p=>p.classList.toggle("active",+p.dataset.lo===lo&&+p.dataset.hi===hi));}
-  function refresh(){paint();renderKpis();renderTrend();renderShare();renderFields();renderJournals();renderTable();syncPresets();}
+  function refresh(){paint();renderKpis();renderTrend();renderShare();renderFields();renderJournals();renderTable();syncPresets();if(curAuthor!=null)openAuthor(curAuthor);}
 
   (function initSelectors(){
     const opts=['<option value="ALL">All journals</option>','<option value="MKT">Marketing journals (4)</option>'];
