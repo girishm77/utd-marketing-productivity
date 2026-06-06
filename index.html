@@ -148,10 +148,6 @@
         <button class="preset" data-lo="2015" data-hi="2025">Last decade</button>
       </div>
     </div>
-    <div>
-      <div class="lbl" style="margin-bottom:8px">Journal</div>
-      <select id="journalSel" class="sel"></select>
-    </div>
   </div>
 
   <div class="kpis" id="kpis"></div>
@@ -187,7 +183,10 @@
     <div class="tbl-tools">
       <div><h3 style="display:inline">Most productive authors</h3>
         <span class="ph-sub" style="margin-left:8px" id="tblNote"></span></div>
-      <input class="search" id="search" placeholder="Search author or university…">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <select id="journalSel" class="sel" style="min-width:170px"></select>
+        <input class="search" id="search" placeholder="Search author or university…">
+      </div>
     </div>
     <div class="tbl-scroll">
     <table id="authTbl">
