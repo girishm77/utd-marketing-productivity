@@ -187,7 +187,7 @@
     <div class="tbl-tools">
       <div><h3 style="display:inline">Most productive authors</h3>
         <span class="ph-sub" style="margin-left:8px" id="tblNote"></span></div>
-      <input class="search" id="search" placeholder="Search author, university, or journal…">
+      <input class="search" id="search" placeholder="Search author or university…">
     </div>
     <div class="tbl-scroll">
     <table id="authTbl">
@@ -341,7 +341,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":4935,"records":18856,"
   const NOTE={total:"total papers",mkt:"marketing",non:"non-marketing",pct:"non-mktg %",yrs:"active years",ja:"just-accepted",inst:"university",author:"name"};
   function renderTable(){
     let rows=authorAgg();
-    if(query)rows=rows.filter(r=>r.author.toLowerCase().includes(query)||(r.inst||"").toLowerCase().includes(query)||[...r.js].some(j=>JNLC[j].includes(query)));
+    if(query)rows=rows.filter(r=>r.author.toLowerCase().includes(query)||(r.inst||"").toLowerCase().includes(query));
     rows.sort((a,b)=>{const x=a[sortK],y=b[sortK];return (sortK==="author"||sortK==="inst")?sortDir*(""+x).localeCompare(""+y):sortDir*(x-y);});
     const max=Math.max(1,...rows.map(r=>r.total));
     $("tbody").innerHTML=rows.map((r,i)=>'<tr>'+
