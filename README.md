@@ -1,8 +1,10 @@
 # Marketing Authors' UTD Productivity, 1990–2025
 
-An interactive dashboard of publication output for 5,199 marketing-home authors
+An interactive dashboard of publication output for 4,934 marketing-home authors
 (full-career home field = Marketing) across all 24 UTD-ranked business journals,
-1990–2025 (18,821 papers, de-duplicated to one per author per article).
+1990–2025 (18,847 papers, de-duplicated to one per author per article).
+Author name variants (e.g., "Pradeep Chintagunta" / "Pradeep K Chintagunta")
+are consolidated.
 
 **Live site:** _add your GitHub Pages URL here after publishing_
 
