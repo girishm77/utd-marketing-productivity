@@ -368,7 +368,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":4934,"records":18847,"
         <td class="bar-cell"><div class="barbg" style="width:${w*0.9}%"></div><span>${fmt(r.total)}</span></td>
         <td>${fmt(r.mkt)}</td>
         <td>${fmt(r.non)}</td>
-        <td><span class="pill" style="background:${r.pct>=20?'rgba(199,91,18,.14)':'rgba(102,112,133,.12)'};color:${r.pct>=20?'#C75B12':'#667085'}">${r.pct}%</span></td>
+        <td>${r.pct}%</td>
         <td>${r.yrs}</td>\n        <td>${r.ja?'<span class="pill" style="background:rgba(47,125,102,.16);color:#2F7D66">'+r.ja+'</span>':'<span style="color:#b6bcc6">\u00b7</span>'}</td></tr>`;}).join("");
     $("tblNote").textContent=`${fmt(rows.length)} authors active in ${lo}–${hi} · all shown · sorted by ${({total:"total papers",mkt:"marketing",non:"non-marketing",pct:"non-mktg %",yrs:"active years",ja:"just-accepted",author:"name"})[sortK]}`;
     document.querySelectorAll("thead th").forEach(th=>th.classList.toggle("sorted",th.dataset.k===sortK));
