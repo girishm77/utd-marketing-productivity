@@ -194,10 +194,12 @@
     <div class="tbl-tools">
       <div><h3 style="display:inline">Most productive authors</h3>
         <span class="ph-sub" style="margin-left:8px" id="tblNote"></span>
-        <div class="ph-sub" style="margin-top:3px">Tip: click a blue author or university name to see their journal distribution.</div></div>
+        <div class="ph-sub" style="margin-top:3px">Tip: click a blue author or university name to see its journal distribution.</div></div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <select id="journalSel" class="sel" style="min-width:170px"></select>
-        <input class="search" id="search" placeholder="Search author or university…">
+        <input id="uniSel" class="sel" list="uniList" placeholder="All universities" autocomplete="off" style="min-width:210px">
+        <datalist id="uniList"></datalist>
+        <input class="search" id="search" placeholder="Search author…">
       </div>
     </div>
     <div class="tbl-scroll">
@@ -366,7 +368,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":4935,"records":18856,"
   const NOTE={total:"total papers",mkt:"marketing",non:"non-marketing",pct:"non-mktg %",yrs:"active years",ja:"just-accepted",inst:"university",author:"name"};
   function renderTable(){
     let rows=authorAgg();
-    if(query)rows=rows.filter(r=>r.author.toLowerCase().includes(query)||(r.inst||"").toLowerCase().includes(query));
+    if(query)rows=rows.filter(r=>r.author.toLowerCase().includes(query));
     rows.sort((a,b)=>{const x=a[sortK],y=b[sortK];return (sortK==="author"||sortK==="inst")?sortDir*(""+x).localeCompare(""+y):sortDir*(x-y);});
     const max=Math.max(1,...rows.map(r=>r.total));
     $("tbody").innerHTML=rows.map((r,i)=>'<tr data-ai="'+r.a+'">'+
@@ -376,7 +378,8 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":4935,"records":18856,"
       '<td>'+(r.ja?'<span class="pill" style="background:rgba(47,125,102,.16);color:#2F7D66">'+r.ja+'</span>':'<span style="color:#b6bcc6">·</span>')+'</td>'+
       (r.inst?'<td class="unilink" data-uni="'+esc(r.inst)+'" style="text-align:left">'+esc(r.inst)+'</td>':'<td style="text-align:left">—</td>')+'</tr>').join("");
     const jl=journalSel==="ALL"?"all journals":(journalSel==="MKT"?"marketing journals":journalSel);
-    $("tblNote").textContent=fmt(rows.length)+" authors · "+lo+"–"+hi+" · "+jl+" · sorted by "+NOTE[sortK];
+    const ul=uniSel==="ALL"?"all universities":uniSel;
+    $("tblNote").textContent=fmt(rows.length)+" authors · "+lo+"–"+hi+" · "+jl+" · "+ul+" · sorted by "+NOTE[sortK];
     document.querySelectorAll("thead th").forEach(th=>th.classList.toggle("sorted",th.dataset.k===sortK));
   }
 
@@ -416,12 +419,15 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":4935,"records":18856,"
     JAB.map((ab,j)=>({n:DATA.journalMap[ab].name,f:JF[j]})).sort((a,b)=>a.f.localeCompare(b.f)||a.n.localeCompare(b.n))
       .forEach(o=>opts.push('<option value="'+o.n.replace(/"/g,'&quot;')+'">'+o.n+'</option>'));
     $("journalSel").innerHTML=opts.join("");
+    const us=[...UNISET].sort((a,b)=>a.localeCompare(b));
+    $("uniList").innerHTML=us.map(u=>'<option value="'+u.replace(/"/g,'&quot;')+'"></option>').join("");
   })();
 
   rLo.addEventListener("input",()=>{lo=Math.min(+rLo.value,hi);rLo.value=lo;refresh();});
   rHi.addEventListener("input",()=>{hi=Math.max(+rHi.value,lo);rHi.value=hi;refresh();});
   $("presets").addEventListener("click",e=>{const b=e.target.closest(".preset");if(!b)return;lo=+b.dataset.lo;hi=+b.dataset.hi;rLo.value=lo;rHi.value=hi;refresh();});
   $("journalSel").addEventListener("change",e=>{journalSel=e.target.value||"ALL";refresh();});
+  $("uniSel").addEventListener("input",e=>{const v=e.target.value.trim();uniSel=(v&&UNISET.has(v))?v:"ALL";refresh();});
   $("search").addEventListener("input",e=>{query=e.target.value.trim().toLowerCase();renderTable();});
   document.querySelectorAll("thead th").forEach(th=>th.addEventListener("click",()=>{const k=th.dataset.k;if(k==="rank")return;
     if(sortK===k)sortDir*=-1;else{sortK=k;sortDir=(k==="author"||k==="inst")?1:-1;}renderTable();}));
