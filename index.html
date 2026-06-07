@@ -50,7 +50,8 @@
   .serif{font-family:Georgia,"Times New Roman",serif;}
   .wrap{max-width:1280px;margin:0 auto;padding:32px 28px 60px;}
   header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;
-    border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:24px;flex-wrap:wrap;}
+    border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:24px;flex-wrap:wrap;position:relative;}
+  .copyright{position:absolute;top:0;right:0;font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.02em;}
   .eyebrow{font-size:11px;font-weight:700;letter-spacing:2.5px;color:var(--orange);text-transform:uppercase;margin-bottom:8px;}
   h1{font-size:30px;margin:0;line-height:1.1;font-weight:700;}
   .sub{color:var(--muted);font-size:14.5px;margin-top:8px;max-width:680px;line-height:1.5;}
@@ -156,6 +157,7 @@
 <body>
 <div class="wrap">
   <header class="top">
+    <div class="copyright">© Girish Mallapragada</div>
     <div>
       <div class="eyebrow">UTD Top-100 Rankings · Marketing Cohort</div>
       <h1 class="serif">Marketing Authors' UTD Productivity</h1>
