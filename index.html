@@ -126,7 +126,7 @@
   #authTbl thead th,#authTbl tbody td{text-align:center;}
   #authTbl thead th:nth-child(2),#authTbl tbody td:nth-child(2),
   #authTbl thead th:nth-child(12),#authTbl tbody td:nth-child(12){text-align:left;}
-  #authTbl th:nth-child(4),#authTbl td:nth-child(4){border-left:2px solid var(--group-line);}
+  #authTbl th:nth-child(3),#authTbl td:nth-child(3){border-right:2px solid var(--group-line);}
   #authTbl th:nth-child(7),#authTbl td:nth-child(7){border-right:2px solid var(--group-line);}
   #authTbl th:nth-child(9),#authTbl td:nth-child(9){border-right:2px solid var(--group-line);}
   #authTbl th:nth-child(11),#authTbl td:nth-child(11){border-left:2px solid var(--group-line);border-right:2px solid var(--group-line);}
@@ -134,7 +134,7 @@
   .note-star-pct,.note-star-active{color:#475467;}
   .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;font-weight:600;}
 
-  .tbl-scroll{max-height:600px;overflow:auto;border:2px solid #D8DCD2;border-radius:8px;background:#fff;box-shadow:0 0 0 1px rgba(30,41,51,.03);}
+  .tbl-scroll{max-height:600px;overflow:auto;border:2px solid rgba(102,112,133,.38);border-radius:8px;background:#fff;box-shadow:0 0 0 1px rgba(30,41,51,.03);}
   .tbl-scroll thead th{position:sticky;top:0;background:var(--card);z-index:2;box-shadow:0 1px 0 var(--line);}
   .drawer{position:fixed;top:0;right:0;height:100%;width:560px;max-width:96vw;background:var(--card);box-shadow:-8px 0 30px rgba(20,30,40,.18);transform:translateX(100%);transition:transform .25s ease;z-index:50;display:flex;flex-direction:column;}
   .drawer.open{transform:translateX(0);}
@@ -158,7 +158,6 @@
   .drawer-table tbody td:nth-child(2){text-align:left;color:var(--ink);font-weight:600;}
   .drawer-author-link{color:var(--blue);cursor:pointer;font-weight:700;}
   .drawer-author-link:hover{text-decoration:underline;}
-  footer{margin-top:30px;color:var(--muted);font-size:11px;border-top:1px solid var(--line);padding-top:16px;line-height:1.6;}
   .hmeta{text-align:right;}
   .upd{font-size:11px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums;}
   details.method{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);margin-top:18px;padding:0 20px;}
@@ -278,17 +277,12 @@
     <div class="method-bd">
       <p><b>Cohort.</b> This dashboard tracks a <b>marketing-home</b> cohort: authors with more than 20% of their de-duplicated UTD-journal papers (1990–2025) in the marketing journals (JCR, JM, JMR, Marketing Science) <b>and at least two marketing-journal papers</b>. The two-paper floor removes one-off crossovers — e.g. a psychologist or economist with a single JCR co-authorship — that a bare share rule would otherwise sweep in. Author name variants (e.g. "Pradeep Chintagunta" / "Pradeep K Chintagunta") are consolidated via conservative same-surname clustering, with manual overrides for known homonyms. It is a deliberately wide, descriptive cohort and differs from the narrower pre-2005 cohorts used in the companion causal analysis.</p>
       <p><b>Counts.</b> Papers are de-duplicated to one record per author per article across all 24 UTD-ranked journals. Marketing journals are JCR, JM, JMR, and Marketing Science; everything else is non-marketing. The dashed line on the share chart marks <b>2005</b>, when the UTD Top-100 rankings rose to prominence. <b>Just-accepted</b> counts are forthcoming / online-first papers (online but not yet assigned to a print issue) for the four marketing journals plus Management Science, via Crossref — these are not year-filtered.</p>
+      <p><b>Table notes.</b> <sup class="note-star note-star-pct">a</sup> <b>Non-mktg %</b> = UTD non-marketing papers excluding Management Science / Total UTD papers; Econ top-5 and Psych flagship-5 are outside UTD and not included. <sup class="note-star note-star-active">b</sup> <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication within the selected range.</p>
       <p><b>Economics &amp; psychology (Econ top-5 / Psych flagship-5).</b> These columns and chart bars count papers the same cohort authors published in high-prestige journals <i>outside</i> the 24 UTD set. Because those journals are not in the UTD extract, the counts were obtained from <a href="https://openalex.org" target="_blank" rel="noopener">OpenAlex</a>: for each target journal we pulled every article 1990–2025 by ISSN and matched its authors to the cohort using the same conservative name matcher as the just-accepted column. They respect the year-range slider. <b>Economics "top 5":</b> American Economic Review, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, and the Review of Economic Studies. <b>Psychology flagship (APA):</b> Psychological Science, Journal of Personality and Social Psychology, Psychological Review, Psychological Bulletin, and American Psychologist. Because matching is by author name only (no ORCID or institution disambiguation), treat Econ top-5 / Psych flagship-5 as a screening estimate — lower-confidence than the UTD-based columns.</p>
       <p><b>Caveats.</b> UTD supplies author <i>names</i>, not stable identifiers, so name-based matching can over- or under-merge scholars. All figures here are <b>descriptive, not causal</b> — see the companion spillover analysis for difference-in-differences estimates and identification caveats.</p>
       <p><b>Source &amp; code.</b> Built from a UTD Top-100 Business School Research Rankings extract. Code and notes: <a href="https://github.com/girishm77/utd-marketing-productivity" target="_blank" rel="noopener">github.com/girishm77/utd-marketing-productivity</a>.</p>
     </div>
   </details>
-
-  <footer>
-    Source: UTD Top-100 Business School Research Rankings extract · marketing-home cohort (n=<span id="fAuthors">4,940</span>; &gt;20% of full-career UTD papers in marketing journals, name variants consolidated), author names normalized · papers de-duplicated to one per author per article · 24 UTD journals.
-    Counts are descriptive; see the spillover analysis for causal caveats. <br><b>Just acc.</b> = forthcoming / online-first papers (online but not yet assigned to a print issue), checked for the four marketing journals plus Management Science — Journal of Marketing, Journal of Marketing Research, Marketing Science, Journal of Consumer Research, and Management Science — via the Crossref API; this count is not year-filtered.
-    <br><b>Econ top-5 / Psych flagship-5</b> = papers in journals outside the 24 UTD set: the economics "top 5" (American Economic Review, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, Review of Economic Studies) and flagship APA psychology journals (Psychological Science, Journal of Personality and Social Psychology, Psychological Review, Psychological Bulletin, American Psychologist), sourced from OpenAlex and matched to the cohort by author name. These are a screening estimate, not author-disambiguated; treat as a lower-confidence indicator.
-  </footer>
   <div class="drawer-bd" id="drawerBd"></div>
   <aside class="drawer" id="drawer" aria-hidden="true">
     <div class="dh">
