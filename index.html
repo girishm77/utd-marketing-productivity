@@ -48,7 +48,7 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     -webkit-font-smoothing:antialiased;}
   .serif{font-family:Georgia,"Times New Roman",serif;}
-  .wrap{max-width:1280px;margin:0 auto;padding:32px 28px 60px;}
+  .wrap{max-width:min(1480px,96vw);margin:0 auto;padding:32px 28px 60px;}
   header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;
     border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:24px;flex-wrap:wrap;position:relative;}
   .copyright{position:absolute;top:0;right:0;font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.02em;}
@@ -252,8 +252,8 @@
         <th data-k="non">Non-mktg</th>
         <th data-k="ms">Mgmt Sci</th>
         <th data-k="pct">Non-mktg %</th>
-        <th data-k="econ" title="Papers in the economics 'top 5' (AER, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, Review of Economic Studies). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Econ<br>top-5</th>
-        <th data-k="psych" title="Papers in flagship APA psychology journals (Psychological Science, JPSP, Psychological Review, Psychological Bulletin, American Psychologist). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Psych<br>flagship-5</th>
+        <th data-k="econ" title="Papers in the economics 'top 5' (AER, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, Review of Economic Studies). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Econ top-5</th>
+        <th data-k="psych" title="Papers in flagship APA psychology journals (Psychological Science, JPSP, Psychological Review, Psychological Bulletin, American Psychologist). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Psych flagship-5</th>
         <th data-k="yrs" title="Distinct calendar years in which the author had at least one publication (within the selected range)">Active yrs <span style="color:#C75B12">★</span></th>
         <th data-k="ja">Just acc.</th>
         <th data-k="inst" style="text-align:left">University</th>
@@ -302,8 +302,8 @@
               <th>Total UTD</th>
               <th>Marketing</th>
               <th>Non-mktg</th>
-              <th>Econ<br>top-5</th>
-              <th>Psych<br>flagship-5</th>
+              <th>Econ top-5</th>
+              <th>Psych flagship-5</th>
             </tr></thead>
             <tbody id="dAuthorRows"></tbody>
           </table>
