@@ -15,7 +15,8 @@ are consolidated.
 - Non-marketing share over time (2005 ranking onset marked)
 - Field mix and top destination journals for non-marketing work
 - A sortable, searchable ranking of the most productive authors
-- A `Focus` column classifying authors' selected-range UTD journal mix
+- A `Focus` column classifying authors' selected-range journal mix, with JCR and
+  psychology flagship papers treated as Consumer behavior output
 
 All panels refilter to a year range you choose with the slider.
 
@@ -29,13 +30,14 @@ All panels refilter to a year range you choose with the slider.
   plurality home-field rule — with normalized author names and papers de-duplicated
   to one per author per article. Counts are descriptive — see the companion
   spillover analysis for causal caveats.
-- `Focus` is computed from selected-range UTD papers only: Consumer behavior if
-  JCR is more than 50%; Marketing strategy if JM/JMR is more than 50%; and
-  Quantitative if Marketing Science/Management Science/JMR is more than 50%.
-  Split labels require each side to be at least 20% of output and the combined
-  journal set to exceed 50%: `CB/strat` = JCR with JM/JMR, `CB/quant` = JCR with
-  Marketing Science/Management Science, and `strat/quant` = JM/JMR with Marketing
-  Science/Management Science/JMR.
+- `Focus` first labels authors Consumer behavior if JCR plus Psych flagship-5
+  is more than 25% of selected-range UTD plus Psych flagship-5 output. Otherwise,
+  it uses selected-range UTD papers: Marketing strategy if JM/JMR is more than
+  50%; and Quantitative if Marketing Science/Management Science/JMR is more than
+  50%. Split labels require each side to be at least 20% of output and the
+  combined journal set to exceed 50%: `CB/strat` = JCR with JM/JMR, `CB/quant` =
+  JCR with Marketing Science/Management Science, and `strat/quant` = JM/JMR with
+  Marketing Science/Management Science/JMR.
 
 ## Publishing (GitHub Pages)
 

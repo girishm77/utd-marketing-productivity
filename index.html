@@ -128,8 +128,6 @@
   #authTbl thead th:nth-child(2),#authTbl tbody td:nth-child(2),
   #authTbl thead th:nth-child(13),#authTbl tbody td:nth-child(13){text-align:left;}
   #authTbl thead th:last-child,#authTbl tbody td:last-child{border-right:0;}
-  .note-star{font-size:9px;line-height:0;font-weight:700;vertical-align:super;color:#475467;text-transform:none;letter-spacing:0;}
-  .note-star-pct,.note-star-active{color:#475467;}
   .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;font-weight:600;}
 
   .tbl-scroll{max-height:600px;overflow:auto;border:2px solid rgba(102,112,133,.38);border-radius:8px;background:#fff;box-shadow:none;}
@@ -257,18 +255,17 @@
         <th data-k="mkt">Marketing</th>
         <th data-k="non" title="UTD papers outside marketing, excluding Management Science. Management Science is shown separately.">Non-mktg</th>
         <th data-k="ms">Mgmt Sci</th>
-        <th data-k="pct" title="UTD non-marketing share excluding Management Science; denominator is Total UTD, so Econ top-5 and Psych flagship-5 are not included.">Non-mktg % <sup class="note-star note-star-pct">a</sup></th>
+        <th data-k="pct" title="UTD non-marketing share excluding Management Science; denominator is Total UTD, so Econ top-5 and Psych flagship-5 are not included.">Non-mktg %</th>
         <th data-k="econ" title="Papers in the economics 'top 5' (AER, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, Review of Economic Studies). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Econ top-5</th>
         <th data-k="psych" title="Papers in flagship APA psychology journals (Psychological Science, JPSP, Psychological Review, Psychological Bulletin, American Psychologist). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Psych flagship-5</th>
-        <th data-k="yrs" title="Distinct calendar years in which the author had at least one publication (within the selected range)">Active yrs <sup class="note-star note-star-active">b</sup></th>
+        <th data-k="yrs" title="Distinct calendar years in which the author had at least one publication (within the selected range)">Active yrs</th>
         <th data-k="ja">Just acc.</th>
-        <th data-k="focus" title="Focus is based on selected-range UTD papers: Consumer behavior if JCR >50%; Marketing strategy if JM/JMR >50%; Quantitative if Marketing Science/Management Science/JMR >50%; mixed labels appear for reasonable CB/strat, CB/quant, and strat/quant splits.">Focus</th>
+        <th data-k="focus" title="Focus is based on selected-range output: Consumer behavior if JCR plus Psych flagship-5 exceeds 25%; otherwise Marketing strategy if JM/JMR >50%, Quantitative if Marketing Science/Management Science/JMR >50%, with mixed labels for reasonable CB/strat, CB/quant, and strat/quant splits.">Focus</th>
         <th data-k="inst" style="text-align:left">University</th>
       </tr></thead>
       <tbody id="tbody"></tbody>
     </table>
     </div>
-    <div style="margin-top:10px;font-size:11.5px;color:var(--muted)"><sup class="note-star note-star-pct">a</sup> <b>Non-mktg %</b> = UTD non-marketing papers excluding Management Science / Total UTD papers; Econ top-5 and Psych flagship-5 are outside UTD and not included. <sup class="note-star note-star-active">b</sup> <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication (within the selected range). <b>Focus</b> uses selected-range UTD papers: Consumer behavior = JCR &gt;50%; Marketing strategy = JM/JMR &gt;50%; Quantitative = Marketing Science/Management Science/JMR &gt;50%; split labels require each side to be at least 20% and the combined area to exceed 50%.</div>
   </div>
 
   <details class="method">
@@ -276,7 +273,7 @@
     <div class="method-bd">
       <p><b>Cohort.</b> This dashboard tracks a <b>marketing-home</b> cohort: authors with more than 20% of their de-duplicated UTD-journal papers (1990–2025) in the marketing journals (JCR, JM, JMR, Marketing Science) <b>and at least two marketing-journal papers</b>. The two-paper floor removes one-off crossovers — e.g. a psychologist or economist with a single JCR co-authorship — that a bare share rule would otherwise sweep in. Author name variants (e.g. "Pradeep Chintagunta" / "Pradeep K Chintagunta") are consolidated via conservative same-surname clustering, with manual overrides for known homonyms. It is a deliberately wide, descriptive cohort and differs from the narrower pre-2005 cohorts used in the companion causal analysis.</p>
       <p><b>Counts.</b> Papers are de-duplicated to one record per author per article across all 24 UTD-ranked journals. Marketing journals are JCR, JM, JMR, and Marketing Science; everything else is non-marketing. The dashed line on the share chart marks <b>2005</b>, when the UTD Top-100 rankings rose to prominence. <b>Just-accepted</b> counts are forthcoming / online-first papers (online but not yet assigned to a print issue) for the four marketing journals plus Management Science, via Crossref — these are not year-filtered.</p>
-      <p><b>Table notes.</b> <sup class="note-star note-star-pct">a</sup> <b>Non-mktg %</b> = UTD non-marketing papers excluding Management Science / Total UTD papers; Econ top-5 and Psych flagship-5 are outside UTD and not included. <sup class="note-star note-star-active">b</sup> <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication within the selected range. <b>Focus</b> classifies authors from selected-range UTD output: Consumer behavior if JCR is more than 50%, Marketing strategy if JM/JMR is more than 50%, and Quantitative if Marketing Science/Management Science/JMR is more than 50%. Split labels require each side to be at least 20% and the combined journal set to exceed 50%: CB/strat = JCR with JM/JMR, CB/quant = JCR with Marketing Science/Management Science, and strat/quant = JM/JMR with Marketing Science/Management Science/JMR.</p>
+      <p><b>Table notes.</b> <b>Non-mktg %</b> = UTD non-marketing papers excluding Management Science / Total UTD papers; Econ top-5 and Psych flagship-5 are outside UTD and not included. <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication within the selected range. <b>Focus</b> first labels authors Consumer behavior if JCR plus Psych flagship-5 is more than 25% of selected-range UTD plus Psych flagship-5 output. Otherwise, Focus uses selected-range UTD output: Marketing strategy if JM/JMR is more than 50%, and Quantitative if Marketing Science/Management Science/JMR is more than 50%. Split labels require each side to be at least 20% and the combined journal set to exceed 50%: CB/strat = JCR with JM/JMR, CB/quant = JCR with Marketing Science/Management Science, and strat/quant = JM/JMR with Marketing Science/Management Science/JMR.</p>
       <p><b>Economics &amp; psychology (Econ top-5 / Psych flagship-5).</b> These columns and chart bars count papers the same cohort authors published in high-prestige journals <i>outside</i> the 24 UTD set. Because those journals are not in the UTD extract, the counts were obtained from <a href="https://openalex.org" target="_blank" rel="noopener">OpenAlex</a>: for each target journal we pulled every article 1990–2025 by ISSN and matched its authors to the cohort using the same conservative name matcher as the just-accepted column. They respect the year-range slider. <b>Economics "top 5":</b> American Economic Review, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, and the Review of Economic Studies. <b>Psychology flagship (APA):</b> Psychological Science, Journal of Personality and Social Psychology, Psychological Review, Psychological Bulletin, and American Psychologist. Because matching is by author name only (no ORCID or institution disambiguation), treat Econ top-5 / Psych flagship-5 as a screening estimate — lower-confidence than the UTD-based columns.</p>
       <p><b>Caveats.</b> UTD supplies author <i>names</i>, not stable identifiers, so name-based matching can over- or under-merge scholars. All figures here are <b>descriptive, not causal</b> — see the companion spillover analysis for difference-in-differences estimates and identification caveats.</p>
       <p><b>Source &amp; code.</b> Built from a UTD Top-100 Business School Research Rankings extract. Code and notes: <a href="https://github.com/girishm77/utd-marketing-productivity" target="_blank" rel="noopener">github.com/girishm77/utd-marketing-productivity</a>.</p>
@@ -358,12 +355,19 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2553,"records":17264,"
   // paper records: [year, authorIdx, journalIdx]
   function jpass(j){ return journalSel==="ALL" || (journalSel==="MKT"?JF[j]==="Marketing":JAB[j]===journalSel); }
   function upass(a){ return uniSel==="ALL" || (DATA.inst[a]||[]).includes(uniSel); }
+  function selectedPsychCount(a){
+    let ps=0;
+    if(DATA.ext)for(const x of DATA.ext){const y=x[0];if(x[1]===a&&y>=lo&&y<=hi)ps+=x[3];}
+    return ps;
+  }
   function classifyAuthor(a){
     const c={total:0,jcr:0,jm:0,jmr:0,mksc:0,mgmt:0};
     for(const p of DATA.papers){const y=p[0],ai=p[1],j=p[2];
       if(ai!==a||y<lo||y>hi||!upass(ai))continue;
       c.total++; if(j===JCRI)c.jcr++; if(j===JMI)c.jm++; if(j===JMRI)c.jmr++; if(j===MKSCI)c.mksc++; if(j===MSI)c.mgmt++;}
     if(!c.total)return {label:"—",share:0};
+    const psych=selectedPsychCount(a), cbPriorityDenom=c.total+psych, cbPriorityShare=cbPriorityDenom?(c.jcr+psych)/cbPriorityDenom:0;
+    if(cbPriorityShare>.25)return {label:"Consumer behavior",share:cbPriorityShare};
     const cb=c.jcr/c.total, strat=(c.jm+c.jmr)/c.total, quant=(c.mksc+c.mgmt+c.jmr)/c.total, quantCore=(c.mksc+c.mgmt)/c.total;
     const cbStrat=(c.jcr+c.jm+c.jmr)/c.total, cbQuant=(c.jcr+c.mksc+c.mgmt)/c.total, stratQuant=(c.jm+c.jmr+c.mksc+c.mgmt)/c.total;
     const reasonable=(a,b,u)=>a>=.2&&b>=.2&&u>.5;
