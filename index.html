@@ -122,16 +122,19 @@
   tbody td:nth-child(1){color:var(--muted);text-align:left;width:42px;}
   tbody td:nth-child(2){text-align:left;font-weight:600;color:var(--ink);}
   tbody tr:hover{background:#FAFAF7;}
-  #authTbl th:nth-child(4),#authTbl td:nth-child(4){border-left:2px solid rgba(199,91,18,.4);}
-  #authTbl th:nth-child(7),#authTbl td:nth-child(7){border-right:2px solid rgba(199,91,18,.4);}
-  #authTbl th:nth-child(9),#authTbl td:nth-child(9){border-right:2px solid rgba(59,110,168,.32);}
-  #authTbl th:nth-child(11),#authTbl td:nth-child(11){border-left:2px solid rgba(47,125,102,.38);border-right:2px solid rgba(47,125,102,.38);}
-  .note-star{font-size:9px;line-height:0;font-weight:700;vertical-align:sub;}
-  .note-star-pct{color:#3B6EA8;}
-  .note-star-active{color:#2F7D66;}
+  #authTbl{--group-line:rgba(102,112,133,.38);}
+  #authTbl thead th,#authTbl tbody td{text-align:center;}
+  #authTbl thead th:nth-child(2),#authTbl tbody td:nth-child(2),
+  #authTbl thead th:nth-child(12),#authTbl tbody td:nth-child(12){text-align:left;}
+  #authTbl th:nth-child(4),#authTbl td:nth-child(4){border-left:2px solid var(--group-line);}
+  #authTbl th:nth-child(7),#authTbl td:nth-child(7){border-right:2px solid var(--group-line);}
+  #authTbl th:nth-child(9),#authTbl td:nth-child(9){border-right:2px solid var(--group-line);}
+  #authTbl th:nth-child(11),#authTbl td:nth-child(11){border-left:2px solid var(--group-line);border-right:2px solid var(--group-line);}
+  .note-star{font-size:9px;line-height:0;font-weight:700;vertical-align:super;color:#475467;}
+  .note-star-pct,.note-star-active{color:#475467;}
   .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;font-weight:600;}
 
-  .tbl-scroll{max-height:600px;overflow:auto;border:1px solid var(--line);border-radius:8px;}
+  .tbl-scroll{max-height:600px;overflow:auto;border:2px solid #D8DCD2;border-radius:8px;background:#fff;box-shadow:0 0 0 1px rgba(30,41,51,.03);}
   .tbl-scroll thead th{position:sticky;top:0;background:var(--card);z-index:2;box-shadow:0 1px 0 var(--line);}
   .drawer{position:fixed;top:0;right:0;height:100%;width:560px;max-width:96vw;background:var(--card);box-shadow:-8px 0 30px rgba(20,30,40,.18);transform:translateX(100%);transition:transform .25s ease;z-index:50;display:flex;flex-direction:column;}
   .drawer.open{transform:translateX(0);}
@@ -257,17 +260,17 @@
         <th data-k="mkt">Marketing</th>
         <th data-k="non" title="UTD papers outside marketing, excluding Management Science. Management Science is shown separately.">Non-mktg</th>
         <th data-k="ms">Mgmt Sci</th>
-        <th data-k="pct" title="UTD non-marketing share excluding Management Science; denominator is Total UTD, so Econ top-5 and Psych flagship-5 are not included.">Non-mktg % <sub class="note-star note-star-pct">★</sub></th>
+        <th data-k="pct" title="UTD non-marketing share excluding Management Science; denominator is Total UTD, so Econ top-5 and Psych flagship-5 are not included.">Non-mktg % <sup class="note-star note-star-pct">a</sup></th>
         <th data-k="econ" title="Papers in the economics 'top 5' (AER, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, Review of Economic Studies). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Econ top-5</th>
         <th data-k="psych" title="Papers in flagship APA psychology journals (Psychological Science, JPSP, Psychological Review, Psychological Bulletin, American Psychologist). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Psych flagship-5</th>
-        <th data-k="yrs" title="Distinct calendar years in which the author had at least one publication (within the selected range)">Active yrs <sub class="note-star note-star-active">★</sub></th>
+        <th data-k="yrs" title="Distinct calendar years in which the author had at least one publication (within the selected range)">Active yrs <sup class="note-star note-star-active">b</sup></th>
         <th data-k="ja">Just acc.</th>
         <th data-k="inst" style="text-align:left">University</th>
       </tr></thead>
       <tbody id="tbody"></tbody>
     </table>
     </div>
-    <div style="margin-top:10px;font-size:11.5px;color:var(--muted)"><sub class="note-star note-star-pct">★</sub> <b>Non-mktg %</b> = UTD non-marketing papers excluding Management Science / Total UTD papers; Econ top-5 and Psych flagship-5 are outside UTD and not included. <sub class="note-star note-star-active">★</sub> <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication (within the selected range).</div>
+    <div style="margin-top:10px;font-size:11.5px;color:var(--muted)"><sup class="note-star note-star-pct">a</sup> <b>Non-mktg %</b> = UTD non-marketing papers excluding Management Science / Total UTD papers; Econ top-5 and Psych flagship-5 are outside UTD and not included. <sup class="note-star note-star-active">b</sup> <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication (within the selected range).</div>
   </div>
 
   <details class="method">
