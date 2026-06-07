@@ -322,6 +322,23 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
   const $=id=>document.getElementById(id);
   const fmt=n=>n.toLocaleString();
   const esc=s=>(""+(s||"")).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  const NAME_PARTICLES=new Set(["da","de","del","den","der","di","du","la","le","st","ter","ten","van","von"]);
+  const NAME_SUFFIXES=new Set(["jr","sr","ii","iii","iv","v"]);
+  function authorNameParts(name){
+    const parts=(""+(name||"")).trim().replace(/\s+/g," ").split(" ").filter(Boolean),suffix=[];
+    while(parts.length>1&&NAME_SUFFIXES.has(parts[parts.length-1].replace(/[.,]/g,"").toLowerCase())){
+      suffix.unshift(parts.pop().replace(/^,|,$/g,""));
+      if(parts.length)parts[parts.length-1]=parts[parts.length-1].replace(/,$/,"");
+    }
+    if(parts.length<2)return {first:parts.join(" "),last:parts.join(" "),suffix:suffix.join(" ")};
+    let start=parts.length-1;
+    while(start>0&&NAME_PARTICLES.has(parts[start-1].replace(/[.]/g,"").toLowerCase()))start--;
+    return {first:parts.slice(0,start).join(" "),last:parts.slice(start).join(" ").replace(/,$/,""),suffix:suffix.join(" ")};
+  }
+  function authorDisplay(name){const p=authorNameParts(name);return p.first?p.last+", "+p.first+(p.suffix?", "+p.suffix:""):p.last;}
+  function authorSortKey(name){const p=authorNameParts(name);return (p.last+" "+p.first+" "+p.suffix).toLocaleLowerCase();}
+  function cmpAuthor(a,b){return (a.nameKey||authorSortKey(a.author)).localeCompare(b.nameKey||authorSortKey(b.author))||a.author.localeCompare(b.author);}
+  function cmpRank(a,b,k,dir){if(k==="author")return dir*cmpAuthor(a,b);if(k==="inst"){const d=(""+a.inst).localeCompare(""+b.inst);return dir*d||cmpAuthor(a,b);}const d=dir*((a[k]||0)-(b[k]||0));return d||cmpAuthor(a,b);}
   const FCOL={"Marketing":"#C75B12","Operations/Management Science":"#3B6EA8",
     "Management/Strategy":"#2A9D8F","Information Systems":"#C8962E",
     "International Business":"#2F7D66","Finance":"#A9413B","Accounting":"#7E6CA8",
@@ -355,7 +372,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
     for(const p of DATA.papers){const y=p[0],a=p[1],j=p[2];
       if(y<lo||y>hi||!jpass(j)||!upass(a))continue;
       let o=m.get(a);
-      if(!o){o={a,author:DATA.names[a],inst:DATA.inst[a]||[],ja:(DATA.ja[a]||0),econ:0,psych:0,total:0,mkt:0,non:0,ms:0,ys:new Set(),js:new Set()};m.set(a,o);}
+      if(!o){const author=DATA.names[a];o={a,author,display:authorDisplay(author),nameKey:authorSortKey(author),inst:DATA.inst[a]||[],ja:(DATA.ja[a]||0),econ:0,psych:0,total:0,mkt:0,non:0,ms:0,ys:new Set(),js:new Set()};m.set(a,o);}
       o.total++; if(JF[j]==="Marketing")o.mkt++; else {o.non++; if(j===MSI)o.ms++;} o.ys.add(y); o.js.add(j);}
     // external econ/psych counts (OpenAlex), summed within the year range, added to authors already in the table
     if(DATA.ext)for(const e of DATA.ext){const y=e[0],a=e[1];if(y<lo||y>hi)continue;const o=m.get(a);if(o){o.econ+=e[2];o.psych+=e[3];}}
@@ -478,14 +495,14 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
     $("jlegend").innerHTML=rows.map(r=>'<button type="button" class="jlink" data-jid="'+esc(r.id)+'"><span class="dot" style="background:'+FCOL[r.field]+'"></span>'+esc(r.name)+'</button>').join("");
   }
 
-  const NOTE={total:"total papers",mkt:"marketing",non:"non-marketing",pct:"non-mktg %",econ:"econ top-5",psych:"psych flagship-5",yrs:"active years",ja:"just-accepted",ms:"Management Science",inst:"university",author:"name"};
+  const NOTE={total:"total papers",mkt:"marketing",non:"non-marketing",pct:"non-mktg %",econ:"econ top-5",psych:"psych flagship-5",yrs:"active years",ja:"just-accepted",ms:"Management Science",inst:"university",author:"last name"};
   function renderTable(){
     let rows=authorAgg();
-    if(query)rows=rows.filter(r=>r.author.toLowerCase().includes(query));
-    rows.sort((a,b)=>{const x=a[sortK],y=b[sortK];return (sortK==="author"||sortK==="inst")?sortDir*(""+x).localeCompare(""+y):sortDir*(x-y);});
+    if(query)rows=rows.filter(r=>r.author.toLowerCase().includes(query)||r.display.toLowerCase().includes(query));
+    rows.sort((a,b)=>cmpRank(a,b,sortK,sortDir));
     const max=Math.max(1,...rows.map(r=>r.total));
     $("tbody").innerHTML=rows.map((r,i)=>'<tr data-ai="'+r.a+'">'+
-      '<td>'+(i+1)+'</td><td class="authlink">'+r.author+'</td>'+
+      '<td>'+(i+1)+'</td><td class="authlink">'+esc(r.display)+'</td>'+
       '<td class="bar-cell"><div class="barbg" style="width:'+((r.total/max*100)*0.9)+'%"></div><span>'+fmt(r.total)+'</span></td>'+
       '<td>'+fmt(r.mkt)+'</td><td>'+fmt(r.non)+'</td><td>'+fmt(r.ms)+'</td><td>'+r.pct+'%</td>'+
       '<td>'+(r.econ?'<span class="pill" style="background:rgba(59,110,168,.16);color:#3B6EA8">'+r.econ+'</span>':'<span style="color:#b6bcc6">·</span>')+'</td>'+
@@ -512,11 +529,11 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
     return {rows:addExtRows(distRows(cnt),e,ps),total:utd+e+ps,utd,e,p:ps,authors:au.size};}
   function uniAuthorRows(uni){const m=new Map();
     for(const q of DATA.papers){const y=q[0],a=q[1],j=q[2];if(y<lo||y>hi||!(DATA.inst[a]||[]).includes(uni))continue;
-      let o=m.get(a);if(!o){o={a,author:DATA.names[a],total:0,mkt:0,non:0,econ:0,psych:0};m.set(a,o);}
+      let o=m.get(a);if(!o){const author=DATA.names[a];o={a,author,display:authorDisplay(author),nameKey:authorSortKey(author),total:0,mkt:0,non:0,econ:0,psych:0};m.set(a,o);}
       o.total++;if(JF[j]==="Marketing")o.mkt++;else o.non++;}
     if(DATA.ext)for(const x of DATA.ext){const y=x[0],a=x[1];if(y<lo||y>hi||!(DATA.inst[a]||[]).includes(uni))continue;
       const o=m.get(a);if(o){o.econ+=x[2];o.psych+=x[3];}}
-    return [...m.values()].sort((a,b)=>(b.total-a.total)||a.author.localeCompare(b.author));}
+    return [...m.values()].sort((a,b)=>(b.total-a.total)||cmpAuthor(a,b));}
   function journalDist(row){
     let total=0;const au=new Set();
     if(row.kind==="utd"){
@@ -528,7 +545,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
     return {rows:total?[{name:row.name,field:row.field,v:total}]:[],total,authors:au.size};
   }
   function journalAuthorRows(row){const m=new Map();
-    const get=a=>{let o=m.get(a);if(!o){o={a,author:DATA.names[a],total:0,mkt:0,non:0,econ:0,psych:0};m.set(a,o);}return o;};
+    const get=a=>{let o=m.get(a);if(!o){const author=DATA.names[a];o={a,author,display:authorDisplay(author),nameKey:authorSortKey(author),total:0,mkt:0,non:0,econ:0,psych:0};m.set(a,o);}return o;};
     if(row.kind==="utd"){
       for(const q of DATA.papers){const y=q[0],a=q[1],j=q[2];if(y<lo||y>hi||j!==row.j||!upass(a))continue;
         const o=get(a);o.total++;if(JF[j]==="Marketing")o.mkt++;else o.non++;}
@@ -537,7 +554,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
       for(const x of DATA.ext){const y=x[0],a=x[1],v=x[ix];if(!v||y<lo||y>hi||!upass(a))continue;
         const o=get(a);o.total+=v;if(row.kind==="econ")o.econ+=v;else o.psych+=v;}
     }
-    return [...m.values()].sort((a,b)=>(b.total-a.total)||a.author.localeCompare(b.author));}
+    return [...m.values()].sort((a,b)=>(b.total-a.total)||cmpAuthor(a,b));}
   function renderDist(title,metaHTML,rows,total,authorRows,opts){
     opts=opts||{};
     $("dName").textContent=title;$("dMeta").innerHTML=metaHTML;
@@ -550,7 +567,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
     if(authorRows){$("dAuthorSection").hidden=false;$("dAuthorTitle").textContent=opts.authorTitle||"AUTHORS AT THIS UNIVERSITY";$("dAuthorNote").textContent=opts.authorNote||fmt(authorRows.length)+" authors ranked by total UTD papers, "+lo+"–"+hi;
       const compact=opts.authorTable==="compact";
       $("dAuthorHead").innerHTML=compact?'<th>#</th><th>Author</th><th>Papers</th>':'<th>#</th><th>Author</th><th>Papers</th><th>Marketing</th><th>Non-mktg</th><th>Econ top-5</th><th>Psych flagship-5</th>';
-      $("dAuthorRows").innerHTML=authorRows.map((r,i)=>compact?'<tr data-dai="'+r.a+'"><td>'+(i+1)+'</td><td><span class="drawer-author-link">'+esc(r.author)+'</span></td><td>'+fmt(r.total)+'</td></tr>':'<tr data-dai="'+r.a+'"><td>'+(i+1)+'</td><td><span class="drawer-author-link">'+esc(r.author)+'</span></td><td>'+fmt(r.total)+'</td><td>'+fmt(r.mkt)+'</td><td>'+fmt(r.non)+'</td><td>'+(r.econ?fmt(r.econ):'<span style="color:#b6bcc6">·</span>')+'</td><td>'+(r.psych?fmt(r.psych):'<span style="color:#b6bcc6">·</span>')+'</td></tr>').join("");
+      $("dAuthorRows").innerHTML=authorRows.map((r,i)=>compact?'<tr data-dai="'+r.a+'"><td>'+(i+1)+'</td><td><span class="drawer-author-link">'+esc(r.display||r.author)+'</span></td><td>'+fmt(r.total)+'</td></tr>':'<tr data-dai="'+r.a+'"><td>'+(i+1)+'</td><td><span class="drawer-author-link">'+esc(r.display||r.author)+'</span></td><td>'+fmt(r.total)+'</td><td>'+fmt(r.mkt)+'</td><td>'+fmt(r.non)+'</td><td>'+(r.econ?fmt(r.econ):'<span style="color:#b6bcc6">·</span>')+'</td><td>'+(r.psych?fmt(r.psych):'<span style="color:#b6bcc6">·</span>')+'</td></tr>').join("");
     }else{$("dAuthorSection").hidden=true;$("dAuthorRows").innerHTML="";}
     $("drawer").classList.add("open");$("drawerBd").classList.add("open");$("drawer").setAttribute("aria-hidden","false");
   }
