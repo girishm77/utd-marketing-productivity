@@ -122,10 +122,9 @@
   tbody td:nth-child(1){color:var(--muted);text-align:left;width:42px;}
   tbody td:nth-child(2){text-align:left;font-weight:600;color:var(--ink);}
   tbody tr:hover{background:#FAFAF7;}
-  .bar-cell{position:relative;}
-  .barbg{position:absolute;right:12px;top:50%;transform:translateY(-50%);height:18px;
-    background:rgba(59,110,168,.13);border-radius:3px;z-index:0;}
-  .bar-cell span{position:relative;z-index:1;}
+  #authTbl th:nth-child(4),#authTbl td:nth-child(4){border-left:2px solid rgba(199,91,18,.4);}
+  #authTbl th:nth-child(7),#authTbl td:nth-child(7){border-right:2px solid rgba(199,91,18,.4);}
+  .note-star{color:#3B6EA8;font-weight:700;}
   .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;font-weight:600;}
 
   .tbl-scroll{max-height:600px;overflow:auto;border:1px solid var(--line);border-radius:8px;}
@@ -254,17 +253,17 @@
         <th data-k="mkt">Marketing</th>
         <th data-k="non" title="UTD papers outside marketing, excluding Management Science. Management Science is shown separately.">Non-mktg</th>
         <th data-k="ms">Mgmt Sci</th>
+        <th data-k="pct" title="UTD non-marketing share excluding Management Science; denominator is Total UTD, so Econ top-5 and Psych flagship-5 are not included.">Non-mktg % <span class="note-star">★</span></th>
         <th data-k="econ" title="Papers in the economics 'top 5' (AER, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, Review of Economic Studies). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Econ top-5</th>
         <th data-k="psych" title="Papers in flagship APA psychology journals (Psychological Science, JPSP, Psychological Review, Psychological Bulletin, American Psychologist). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Psych flagship-5</th>
-        <th data-k="pct" title="UTD non-marketing share excluding Management Science; denominator is Total UTD, so Econ top-5 and Psych flagship-5 are not included.">Non-mktg % <span style="color:#C75B12">★</span></th>
-        <th data-k="yrs" title="Distinct calendar years in which the author had at least one publication (within the selected range)">Active yrs <span style="color:#C75B12">★</span></th>
+        <th data-k="yrs" title="Distinct calendar years in which the author had at least one publication (within the selected range)">Active yrs <span class="note-star">★</span></th>
         <th data-k="ja">Just acc.</th>
         <th data-k="inst" style="text-align:left">University</th>
       </tr></thead>
       <tbody id="tbody"></tbody>
     </table>
     </div>
-    <div style="margin-top:10px;font-size:11.5px;color:var(--muted)"><span style="color:#C75B12">★</span> <b>Non-mktg %</b> = UTD non-marketing papers excluding Management Science / Total UTD papers; Econ top-5 and Psych flagship-5 are outside UTD and not included. <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication (within the selected range).</div>
+    <div style="margin-top:10px;font-size:11.5px;color:var(--muted)"><span class="note-star">★</span> <b>Non-mktg %</b> = UTD non-marketing papers excluding Management Science / Total UTD papers; Econ top-5 and Psych flagship-5 are outside UTD and not included. <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication (within the selected range).</div>
   </div>
 
   <details class="method">
@@ -500,14 +499,13 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
     let rows=authorAgg();
     if(query)rows=rows.filter(r=>r.author.toLowerCase().includes(query)||r.display.toLowerCase().includes(query));
     rows.sort((a,b)=>cmpRank(a,b,sortK,sortDir));
-    const max=Math.max(1,...rows.map(r=>r.total));
     $("tbody").innerHTML=rows.map((r,i)=>'<tr data-ai="'+r.a+'">'+
       '<td>'+(i+1)+'</td><td class="authlink">'+esc(r.display)+'</td>'+
-      '<td class="bar-cell"><div class="barbg" style="width:'+((r.total/max*100)*0.9)+'%"></div><span>'+fmt(r.total)+'</span></td>'+
+      '<td>'+fmt(r.total)+'</td>'+
       '<td>'+fmt(r.mkt)+'</td><td>'+fmt(r.non)+'</td><td>'+fmt(r.ms)+'</td>'+
+      '<td>'+r.pct+'%</td>'+
       '<td>'+(r.econ?'<span class="pill" style="background:rgba(59,110,168,.16);color:#3B6EA8">'+r.econ+'</span>':'<span style="color:#b6bcc6">·</span>')+'</td>'+
       '<td>'+(r.psych?'<span class="pill" style="background:rgba(126,108,168,.18);color:#7E6CA8">'+r.psych+'</span>':'<span style="color:#b6bcc6">·</span>')+'</td>'+
-      '<td>'+r.pct+'%</td>'+
       '<td>'+r.yrs+'</td>'+
       '<td>'+(r.ja?'<span class="pill" style="background:rgba(47,125,102,.16);color:#2F7D66">'+r.ja+'</span>':'<span style="color:#b6bcc6">·</span>')+'</td>'+
       '<td style="text-align:left">'+((r.inst&&r.inst.length)?r.inst.map(u=>'<span class="unilink" data-uni="'+esc(u)+'">'+esc(u)+'</span>').join('<br>'):'—')+'</td>'+'</tr>').join("");
