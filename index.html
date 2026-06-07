@@ -299,7 +299,7 @@
         <div id="dAuthorNote" class="ph-sub" style="margin-bottom:8px"></div>
         <div class="drawer-table-wrap">
           <table class="drawer-table">
-            <thead><tr>
+            <thead><tr id="dAuthorHead">
               <th>#</th>
               <th>Author</th>
               <th>Papers</th>
@@ -548,7 +548,9 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
     else{authPie.data.labels=labels;authPie.data.datasets[0].data=data;authPie.data.datasets[0].backgroundColor=colors;authPie.options.plugins.tooltip=tip;authPie.update();}
     $("dList").innerHTML=rows.map((x,i)=>'<div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:4px 0;border-bottom:1px solid #eef0ee"><span><span class="dot" style="background:'+PIE[i%PIE.length]+'"></span> '+esc(x.name)+'</span><b>'+x.v+'</b></div>').join("");
     if(authorRows){$("dAuthorSection").hidden=false;$("dAuthorTitle").textContent=opts.authorTitle||"AUTHORS AT THIS UNIVERSITY";$("dAuthorNote").textContent=opts.authorNote||fmt(authorRows.length)+" authors ranked by total UTD papers, "+lo+"–"+hi;
-      $("dAuthorRows").innerHTML=authorRows.map((r,i)=>'<tr data-dai="'+r.a+'"><td>'+(i+1)+'</td><td><span class="drawer-author-link">'+esc(r.author)+'</span></td><td>'+fmt(r.total)+'</td><td>'+fmt(r.mkt)+'</td><td>'+fmt(r.non)+'</td><td>'+(r.econ?fmt(r.econ):'<span style="color:#b6bcc6">·</span>')+'</td><td>'+(r.psych?fmt(r.psych):'<span style="color:#b6bcc6">·</span>')+'</td></tr>').join("");
+      const compact=opts.authorTable==="compact";
+      $("dAuthorHead").innerHTML=compact?'<th>#</th><th>Author</th><th>Papers</th>':'<th>#</th><th>Author</th><th>Papers</th><th>Marketing</th><th>Non-mktg</th><th>Econ top-5</th><th>Psych flagship-5</th>';
+      $("dAuthorRows").innerHTML=authorRows.map((r,i)=>compact?'<tr data-dai="'+r.a+'"><td>'+(i+1)+'</td><td><span class="drawer-author-link">'+esc(r.author)+'</span></td><td>'+fmt(r.total)+'</td></tr>':'<tr data-dai="'+r.a+'"><td>'+(i+1)+'</td><td><span class="drawer-author-link">'+esc(r.author)+'</span></td><td>'+fmt(r.total)+'</td><td>'+fmt(r.mkt)+'</td><td>'+fmt(r.non)+'</td><td>'+(r.econ?fmt(r.econ):'<span style="color:#b6bcc6">·</span>')+'</td><td>'+(r.psych?fmt(r.psych):'<span style="color:#b6bcc6">·</span>')+'</td></tr>').join("");
     }else{$("dAuthorSection").hidden=true;$("dAuthorRows").innerHTML="";}
     $("drawer").classList.add("open");$("drawerBd").classList.add("open");$("drawer").setAttribute("aria-hidden","false");
   }
@@ -561,8 +563,8 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
   function openJournalById(id){const row=journalRowById(id);if(row)openJournal(row);}
   function openJournal(row){cur={k:"j",id:row.id};const d=journalDist(row),authors=journalAuthorRows(row),where=uniSel==="ALL"?"all universities":uniSel;
     renderDist(row.name,d.authors+" authors \u00b7 "+fmt(d.total)+" papers ("+lo+"\u2013"+hi+") \u00b7 "+where+" \u00b7 "+(row.kind==="utd"?row.field:"outside UTD"),d.rows,d.total,authors,
-      {distTitle:"SELECTED DESTINATION",authorTitle:"AUTHORS IN THIS DESTINATION",authorNote:fmt(authors.length)+" authors ranked by papers in this destination, "+lo+"\u2013"+hi});}
-  function closeDrawer(){cur=null;$("drawer").classList.remove("open");$("drawerBd").classList.remove("open");$("drawer").setAttribute("aria-hidden","true");}
+      {distTitle:"SELECTED DESTINATION",authorTitle:"AUTHORS IN THIS DESTINATION",authorNote:fmt(authors.length)+" authors ranked by papers in this destination, "+lo+"\u2013"+hi,authorTable:"compact"});}
+  function closeDrawer(){cur=null;if($("drawer").contains(document.activeElement))document.activeElement.blur();$("drawer").classList.remove("open");$("drawerBd").classList.remove("open");$("drawer").setAttribute("aria-hidden","true");}
   $("dclose").addEventListener("click",closeDrawer);
   $("drawerBd").addEventListener("click",closeDrawer);
   document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer();});
