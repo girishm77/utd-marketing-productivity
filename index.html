@@ -127,7 +127,7 @@
 
   .tbl-scroll{max-height:600px;overflow:auto;border:1px solid var(--line);border-radius:8px;}
   .tbl-scroll thead th{position:sticky;top:0;background:var(--card);z-index:2;box-shadow:0 1px 0 var(--line);}
-  .drawer{position:fixed;top:0;right:0;height:100%;width:430px;max-width:92vw;background:var(--card);box-shadow:-8px 0 30px rgba(20,30,40,.18);transform:translateX(100%);transition:transform .25s ease;z-index:50;display:flex;flex-direction:column;}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:560px;max-width:96vw;background:var(--card);box-shadow:-8px 0 30px rgba(20,30,40,.18);transform:translateX(100%);transition:transform .25s ease;z-index:50;display:flex;flex-direction:column;}
   .drawer.open{transform:translateX(0);}
   .drawer .dh{position:relative;padding:20px 22px 14px;border-bottom:1px solid var(--line);}
   .drawer .dh h3{margin:0;font-size:18px;font-weight:700;font-family:Georgia,serif;}
@@ -139,6 +139,16 @@
   tbody td.authlink,tbody .unilink{cursor:pointer;color:#3B6EA8;text-decoration:underline;text-decoration-color:rgba(59,110,168,.45);text-underline-offset:2px;}
   tbody td.authlink:hover,tbody .unilink:hover{color:#244e86;text-decoration-color:#244e86;background:#eef3f8;}
   tbody td .unilink{display:inline-block;}
+  .drawer-section-title{font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+  .drawer-authors{margin-top:18px;border-top:1px solid var(--line);padding-top:16px;}
+  .drawer-table-wrap{max-height:330px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff;}
+  .drawer-table{font-size:12px;}
+  .drawer-table thead th{position:sticky;top:0;background:#fff;z-index:1;padding:7px 8px;}
+  .drawer-table tbody td{padding:7px 8px;}
+  .drawer-table tbody td:nth-child(1){width:34px;color:var(--muted);text-align:left;}
+  .drawer-table tbody td:nth-child(2){text-align:left;color:var(--ink);font-weight:600;}
+  .drawer-author-link{color:var(--blue);cursor:pointer;font-weight:700;}
+  .drawer-author-link:hover{text-decoration:underline;}
   footer{margin-top:30px;color:var(--muted);font-size:11px;border-top:1px solid var(--line);padding-top:16px;line-height:1.6;}
   .hmeta{text-align:right;}
   .upd{font-size:11px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums;}
@@ -278,9 +288,27 @@
       <div id="dMeta" class="ph-sub" style="margin-top:6px"></div>
     </div>
     <div class="db">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:700;letter-spacing:1px">PAPERS BY JOURNAL</div>
+      <div class="drawer-section-title">PAPERS BY JOURNAL</div>
       <div style="position:relative;height:300px"><canvas id="authPie"></canvas></div>
       <div id="dList" style="margin-top:16px"></div>
+      <div id="dAuthorSection" class="drawer-authors" hidden>
+        <div class="drawer-section-title">AUTHORS AT THIS UNIVERSITY</div>
+        <div id="dAuthorNote" class="ph-sub" style="margin-bottom:8px"></div>
+        <div class="drawer-table-wrap">
+          <table class="drawer-table">
+            <thead><tr>
+              <th>#</th>
+              <th>Author</th>
+              <th>Total UTD</th>
+              <th>Marketing</th>
+              <th>Non-mktg</th>
+              <th>Econ A</th>
+              <th>Psych A</th>
+            </tr></thead>
+            <tbody id="dAuthorRows"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </aside>
 </div>
@@ -463,13 +491,23 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2553,"records":17282,"
   function uniDist(uni){const cnt={};let utd=0;const au=new Set();for(const q of DATA.papers){const y=q[0],a=q[1],j=q[2];if(!(DATA.inst[a]||[]).includes(uni)||y<lo||y>hi)continue;cnt[j]=(cnt[j]||0)+1;utd++;au.add(a);}
     let e=0,ps=0;if(DATA.ext)for(const x of DATA.ext){const y=x[0],a=x[1];if(y<lo||y>hi||!(DATA.inst[a]||[]).includes(uni))continue;e+=x[2];ps+=x[3];}
     return {rows:addExtRows(distRows(cnt),e,ps),total:utd+e+ps,utd,e,p:ps,authors:au.size};}
-  function renderDist(title,metaHTML,rows,total){
+  function uniAuthorRows(uni){const m=new Map();
+    for(const q of DATA.papers){const y=q[0],a=q[1],j=q[2];if(y<lo||y>hi||!(DATA.inst[a]||[]).includes(uni))continue;
+      let o=m.get(a);if(!o){o={a,author:DATA.names[a],total:0,mkt:0,non:0,econ:0,psych:0};m.set(a,o);}
+      o.total++;if(JF[j]==="Marketing")o.mkt++;else o.non++;}
+    if(DATA.ext)for(const x of DATA.ext){const y=x[0],a=x[1];if(y<lo||y>hi||!(DATA.inst[a]||[]).includes(uni))continue;
+      const o=m.get(a);if(o){o.econ+=x[2];o.psych+=x[3];}}
+    return [...m.values()].sort((a,b)=>(b.total-a.total)||a.author.localeCompare(b.author));}
+  function renderDist(title,metaHTML,rows,total,authorRows){
     $("dName").textContent=title;$("dMeta").innerHTML=metaHTML;
     const labels=rows.map(x=>x.name),data=rows.map(x=>x.v),colors=rows.map((x,i)=>PIE[i%PIE.length]);
     const tip={callbacks:{label:c=>c.label+": "+c.parsed+" ("+(total?Math.round(c.parsed/total*100):0)+"%)"}};
     if(!authPie){authPie=new Chart($("authPie"),{type:"doughnut",data:{labels,datasets:[{data,backgroundColor:colors,borderColor:"#fff",borderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:tip}}});}
     else{authPie.data.labels=labels;authPie.data.datasets[0].data=data;authPie.data.datasets[0].backgroundColor=colors;authPie.options.plugins.tooltip=tip;authPie.update();}
     $("dList").innerHTML=rows.map((x,i)=>'<div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:4px 0;border-bottom:1px solid #eef0ee"><span><span class="dot" style="background:'+PIE[i%PIE.length]+'"></span> '+esc(x.name)+'</span><b>'+x.v+'</b></div>').join("");
+    if(authorRows){$("dAuthorSection").hidden=false;$("dAuthorNote").textContent=fmt(authorRows.length)+" authors ranked by total UTD papers, "+lo+"–"+hi;
+      $("dAuthorRows").innerHTML=authorRows.map((r,i)=>'<tr data-dai="'+r.a+'"><td>'+(i+1)+'</td><td><span class="drawer-author-link">'+esc(r.author)+'</span></td><td>'+fmt(r.total)+'</td><td>'+fmt(r.mkt)+'</td><td>'+fmt(r.non)+'</td><td>'+(r.econ?fmt(r.econ):'<span style="color:#b6bcc6">·</span>')+'</td><td>'+(r.psych?fmt(r.psych):'<span style="color:#b6bcc6">·</span>')+'</td></tr>').join("");
+    }else{$("dAuthorSection").hidden=true;$("dAuthorRows").innerHTML="";}
     $("drawer").classList.add("open");$("drawerBd").classList.add("open");$("drawer").setAttribute("aria-hidden","false");
   }
   function openAuthor(idx){cur={k:"a",id:idx};const d=authorDist(idx),mkt=d.rows.filter(x=>x.field==="Marketing").reduce((s,x)=>s+x.v,0);
@@ -477,11 +515,12 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2553,"records":17282,"
     renderDist(DATA.names[idx],esc((DATA.inst[idx]||[]).join(", ")||"\u2014")+" \u00b7 "+d.utd+" UTD papers ("+lo+"\u2013"+hi+") \u00b7 "+mkt+" mktg / "+(d.utd-mkt)+" non-mktg"+extra+(DATA.ja[idx]?" \u00b7 "+DATA.ja[idx]+" just-accepted":""),d.rows,d.total);}
   function openUni(uni){cur={k:"u",id:uni};const d=uniDist(uni),mkt=d.rows.filter(x=>x.field==="Marketing").reduce((s,x)=>s+x.v,0);
     const extra=(d.e?" \u00b7 "+d.e+" econ":"")+(d.p?" \u00b7 "+d.p+" psych":"");
-    renderDist(uni,d.authors+" authors \u00b7 "+d.utd+" UTD papers ("+lo+"\u2013"+hi+") \u00b7 "+mkt+" mktg / "+(d.utd-mkt)+" non-mktg"+extra,d.rows,d.total);}
+    renderDist(uni,d.authors+" authors \u00b7 "+d.utd+" UTD papers ("+lo+"\u2013"+hi+") \u00b7 "+mkt+" mktg / "+(d.utd-mkt)+" non-mktg"+extra,d.rows,d.total,uniAuthorRows(uni));}
   function closeDrawer(){cur=null;$("drawer").classList.remove("open");$("drawerBd").classList.remove("open");$("drawer").setAttribute("aria-hidden","true");}
   $("dclose").addEventListener("click",closeDrawer);
   $("drawerBd").addEventListener("click",closeDrawer);
   document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer();});
+  $("dAuthorRows").addEventListener("click",e=>{const tr=e.target.closest("tr[data-dai]");if(tr)openAuthor(+tr.dataset.dai);});
   $("tbody").addEventListener("click",e=>{const u=e.target.closest(".unilink");if(u){openUni(u.dataset.uni);return;}const td=e.target.closest("td.authlink");if(td){const tr=td.closest("tr[data-ai]");if(tr)openAuthor(+tr.dataset.ai);}});
 
   const rLo=$("rLo"),rHi=$("rHi"),fill=$("fill");
