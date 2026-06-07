@@ -104,7 +104,10 @@
 
   /* legend */
   .flegend{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;font-size:11.5px;color:var(--muted);}
-  .flegend span{display:inline-flex;align-items:center;gap:6px;}
+  .flegend span,.flegend button{display:inline-flex;align-items:center;gap:6px;}
+  .flegend button{border:0;background:transparent;padding:0;font:inherit;}
+  .flegend .jlink{color:var(--blue);cursor:pointer;text-decoration:underline;text-decoration-color:rgba(59,110,168,.45);text-underline-offset:2px;}
+  .flegend .jlink:hover{color:#244e86;text-decoration-color:#244e86;}
   .dot{width:11px;height:11px;border-radius:3px;display:inline-block;}
 
   /* table */
@@ -288,18 +291,18 @@
       <div id="dMeta" class="ph-sub" style="margin-top:6px"></div>
     </div>
     <div class="db">
-      <div class="drawer-section-title">PAPERS BY JOURNAL</div>
+      <div class="drawer-section-title" id="dDistTitle">PAPERS BY JOURNAL</div>
       <div style="position:relative;height:300px"><canvas id="authPie"></canvas></div>
       <div id="dList" style="margin-top:16px"></div>
       <div id="dAuthorSection" class="drawer-authors" hidden>
-        <div class="drawer-section-title">AUTHORS AT THIS UNIVERSITY</div>
+        <div class="drawer-section-title" id="dAuthorTitle">AUTHORS AT THIS UNIVERSITY</div>
         <div id="dAuthorNote" class="ph-sub" style="margin-bottom:8px"></div>
         <div class="drawer-table-wrap">
           <table class="drawer-table">
             <thead><tr>
               <th>#</th>
               <th>Author</th>
-              <th>Total UTD</th>
+              <th>Papers</th>
               <th>Marketing</th>
               <th>Non-mktg</th>
               <th>Econ top-5</th>
@@ -389,7 +392,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
     $("kpis").innerHTML=cards.map(c=>'<div class="kpi" style="--accent:'+c.c+'"><div class="v">'+c.v+'</div><div class="k">'+c.k+'</div><div class="d">'+c.d+'</div></div>').join("");
   }
 
-  let trendCh,shareCh,fieldCh,jrnlCh;
+  let trendCh,shareCh,fieldCh,jrnlCh,journalRows=[];
   function baseScales(extra){return Object.assign({grid:{color:GRID,drawBorder:false},ticks:{color:MUTED}},extra||{});}
   function renderTrend(){
     const s=yearSeries();const inR=y=>y>=lo&&y<=hi;const dim=b=>s.yrs.map(y=>inR(y)?b:b+"33");
@@ -429,6 +432,22 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
   function extTotals(){ // econ top-5 / psych flagship papers (outside the 24 UTD journals), year + university filtered
     let e=0,p=0; if(DATA.ext)for(const x of DATA.ext){const y=x[0],a=x[1]; if(y<lo||y>hi||!upass(a))continue; e+=x[2]; p+=x[3];} return {e,p};
   }
+  function topJournalRows(){
+    const a=rangeAgg();
+    const rows=JAB.map((ab,j)=>({id:ab,kind:"utd",j,name:DATA.journalMap[ab].name,field:JF[j],v:a.jc[j]})).filter(r=>r.v>0);
+    const ex=extTotals();
+    if(ex.e>0)rows.push({id:"__econ",kind:"econ",name:"Econ top-5",field:"Economics",v:ex.e});
+    if(ex.p>0)rows.push({id:"__psych",kind:"psych",name:"Psych flagship-5",field:"Psychology",v:ex.p});
+    return rows.sort((x,y)=>y.v-x.v).slice(0,12);
+  }
+  function journalRowById(id){
+    const ex=extTotals();
+    if(id==="__econ")return {id,kind:"econ",name:"Econ top-5",field:"Economics",v:ex.e};
+    if(id==="__psych")return {id,kind:"psych",name:"Psych flagship-5",field:"Psychology",v:ex.p};
+    const j=JAB.indexOf(id); if(j<0)return null;
+    const a=rangeAgg();
+    return {id,kind:"utd",j,name:DATA.journalMap[id].name,field:JF[j],v:a.jc[j]};
+  }
   function renderFields(){
     const a=rangeAgg();const tot={};DATA.fields.forEach(f=>tot[f]=0);
     JAB.forEach((ab,j)=>{tot[JF[j]]+=a.jc[j];});
@@ -446,17 +465,17 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
     } else {fieldCh.data.datasets[0].data=vals;fieldCh.update();}
   }
   function renderJournals(){
-    const a=rangeAgg();
-    let rows=JAB.map((ab,j)=>({name:DATA.journalMap[ab].name,field:JF[j],v:a.jc[j]})).filter(r=>r.v>0);
-    const ex=extTotals(); rows=addExtRows(rows,ex.e,ex.p).slice(0,12);
+    const rows=journalRows=topJournalRows();
     if(!jrnlCh){
       jrnlCh=new Chart($("journals"),{type:"bar",data:{labels:rows.map(r=>r.name),datasets:[{data:rows.map(r=>r.v),backgroundColor:rows.map(r=>FCOL[r.field]),borderRadius:4,barThickness:18}]},
-        options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.x)+" papers  ·  "+rows[c.dataIndex].field}}},
+        options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+          onClick:(evt,els)=>{if(els.length&&journalRows[els[0].index])openJournal(journalRows[els[0].index]);},
+          onHover:(evt,els)=>{if(evt.native&&evt.native.target)evt.native.target.style.cursor=els.length?"pointer":"default";},
+          plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.x)+" papers  ·  "+journalRows[c.dataIndex].field}}},
           scales:{x:baseScales({title:{display:true,text:"Papers in selection",color:MUTED}}),
             y:baseScales({grid:{display:false},ticks:{color:INK,font:{size:11},callback:function(v){const l=this.getLabelForValue(v);return l.length>34?l.slice(0,32)+"…":l;}}})}}});
     } else {jrnlCh.data.labels=rows.map(r=>r.name);jrnlCh.data.datasets[0].data=rows.map(r=>r.v);jrnlCh.data.datasets[0].backgroundColor=rows.map(r=>FCOL[r.field]);jrnlCh.update();}
-    const used=[...new Set(rows.map(r=>r.field))];
-    $("jlegend").innerHTML=used.map(f=>'<span><span class="dot" style="background:'+FCOL[f]+'"></span>'+f+'</span>').join("");
+    $("jlegend").innerHTML=rows.map(r=>'<button type="button" class="jlink" data-jid="'+esc(r.id)+'"><span class="dot" style="background:'+FCOL[r.field]+'"></span>'+esc(r.name)+'</button>').join("");
   }
 
   const NOTE={total:"total papers",mkt:"marketing",non:"non-marketing",pct:"non-mktg %",econ:"econ top-5",psych:"psych flagship-5",yrs:"active years",ja:"just-accepted",ms:"Management Science",inst:"university",author:"name"};
@@ -498,14 +517,37 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
     if(DATA.ext)for(const x of DATA.ext){const y=x[0],a=x[1];if(y<lo||y>hi||!(DATA.inst[a]||[]).includes(uni))continue;
       const o=m.get(a);if(o){o.econ+=x[2];o.psych+=x[3];}}
     return [...m.values()].sort((a,b)=>(b.total-a.total)||a.author.localeCompare(b.author));}
-  function renderDist(title,metaHTML,rows,total,authorRows){
+  function journalDist(row){
+    let total=0;const au=new Set();
+    if(row.kind==="utd"){
+      for(const q of DATA.papers){const y=q[0],a=q[1],j=q[2];if(y<lo||y>hi||j!==row.j||!upass(a))continue;total++;au.add(a);}
+    }else if(DATA.ext){
+      const ix=row.kind==="econ"?2:3;
+      for(const x of DATA.ext){const y=x[0],a=x[1],v=x[ix];if(!v||y<lo||y>hi||!upass(a))continue;total+=v;au.add(a);}
+    }
+    return {rows:total?[{name:row.name,field:row.field,v:total}]:[],total,authors:au.size};
+  }
+  function journalAuthorRows(row){const m=new Map();
+    const get=a=>{let o=m.get(a);if(!o){o={a,author:DATA.names[a],total:0,mkt:0,non:0,econ:0,psych:0};m.set(a,o);}return o;};
+    if(row.kind==="utd"){
+      for(const q of DATA.papers){const y=q[0],a=q[1],j=q[2];if(y<lo||y>hi||j!==row.j||!upass(a))continue;
+        const o=get(a);o.total++;if(JF[j]==="Marketing")o.mkt++;else o.non++;}
+    }else if(DATA.ext){
+      const ix=row.kind==="econ"?2:3;
+      for(const x of DATA.ext){const y=x[0],a=x[1],v=x[ix];if(!v||y<lo||y>hi||!upass(a))continue;
+        const o=get(a);o.total+=v;if(row.kind==="econ")o.econ+=v;else o.psych+=v;}
+    }
+    return [...m.values()].sort((a,b)=>(b.total-a.total)||a.author.localeCompare(b.author));}
+  function renderDist(title,metaHTML,rows,total,authorRows,opts){
+    opts=opts||{};
     $("dName").textContent=title;$("dMeta").innerHTML=metaHTML;
+    $("dDistTitle").textContent=opts.distTitle||"PAPERS BY JOURNAL";
     const labels=rows.map(x=>x.name),data=rows.map(x=>x.v),colors=rows.map((x,i)=>PIE[i%PIE.length]);
     const tip={callbacks:{label:c=>c.label+": "+c.parsed+" ("+(total?Math.round(c.parsed/total*100):0)+"%)"}};
     if(!authPie){authPie=new Chart($("authPie"),{type:"doughnut",data:{labels,datasets:[{data,backgroundColor:colors,borderColor:"#fff",borderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:tip}}});}
     else{authPie.data.labels=labels;authPie.data.datasets[0].data=data;authPie.data.datasets[0].backgroundColor=colors;authPie.options.plugins.tooltip=tip;authPie.update();}
     $("dList").innerHTML=rows.map((x,i)=>'<div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:4px 0;border-bottom:1px solid #eef0ee"><span><span class="dot" style="background:'+PIE[i%PIE.length]+'"></span> '+esc(x.name)+'</span><b>'+x.v+'</b></div>').join("");
-    if(authorRows){$("dAuthorSection").hidden=false;$("dAuthorNote").textContent=fmt(authorRows.length)+" authors ranked by total UTD papers, "+lo+"–"+hi;
+    if(authorRows){$("dAuthorSection").hidden=false;$("dAuthorTitle").textContent=opts.authorTitle||"AUTHORS AT THIS UNIVERSITY";$("dAuthorNote").textContent=opts.authorNote||fmt(authorRows.length)+" authors ranked by total UTD papers, "+lo+"–"+hi;
       $("dAuthorRows").innerHTML=authorRows.map((r,i)=>'<tr data-dai="'+r.a+'"><td>'+(i+1)+'</td><td><span class="drawer-author-link">'+esc(r.author)+'</span></td><td>'+fmt(r.total)+'</td><td>'+fmt(r.mkt)+'</td><td>'+fmt(r.non)+'</td><td>'+(r.econ?fmt(r.econ):'<span style="color:#b6bcc6">·</span>')+'</td><td>'+(r.psych?fmt(r.psych):'<span style="color:#b6bcc6">·</span>')+'</td></tr>').join("");
     }else{$("dAuthorSection").hidden=true;$("dAuthorRows").innerHTML="";}
     $("drawer").classList.add("open");$("drawerBd").classList.add("open");$("drawer").setAttribute("aria-hidden","false");
@@ -516,18 +558,23 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
   function openUni(uni){cur={k:"u",id:uni};const d=uniDist(uni),mkt=d.rows.filter(x=>x.field==="Marketing").reduce((s,x)=>s+x.v,0);
     const extra=(d.e?" \u00b7 "+d.e+" econ":"")+(d.p?" \u00b7 "+d.p+" psych":"");
     renderDist(uni,d.authors+" authors \u00b7 "+d.utd+" UTD papers ("+lo+"\u2013"+hi+") \u00b7 "+mkt+" mktg / "+(d.utd-mkt)+" non-mktg"+extra,d.rows,d.total,uniAuthorRows(uni));}
+  function openJournalById(id){const row=journalRowById(id);if(row)openJournal(row);}
+  function openJournal(row){cur={k:"j",id:row.id};const d=journalDist(row),authors=journalAuthorRows(row),where=uniSel==="ALL"?"all universities":uniSel;
+    renderDist(row.name,d.authors+" authors \u00b7 "+fmt(d.total)+" papers ("+lo+"\u2013"+hi+") \u00b7 "+where+" \u00b7 "+(row.kind==="utd"?row.field:"outside UTD"),d.rows,d.total,authors,
+      {distTitle:"SELECTED DESTINATION",authorTitle:"AUTHORS IN THIS DESTINATION",authorNote:fmt(authors.length)+" authors ranked by papers in this destination, "+lo+"\u2013"+hi});}
   function closeDrawer(){cur=null;$("drawer").classList.remove("open");$("drawerBd").classList.remove("open");$("drawer").setAttribute("aria-hidden","true");}
   $("dclose").addEventListener("click",closeDrawer);
   $("drawerBd").addEventListener("click",closeDrawer);
   document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer();});
   $("dAuthorRows").addEventListener("click",e=>{const tr=e.target.closest("tr[data-dai]");if(tr)openAuthor(+tr.dataset.dai);});
+  $("jlegend").addEventListener("click",e=>{const b=e.target.closest(".jlink[data-jid]");if(b)openJournalById(b.dataset.jid);});
   $("tbody").addEventListener("click",e=>{const u=e.target.closest(".unilink");if(u){openUni(u.dataset.uni);return;}const td=e.target.closest("td.authlink");if(td){const tr=td.closest("tr[data-ai]");if(tr)openAuthor(+tr.dataset.ai);}});
 
   const rLo=$("rLo"),rHi=$("rHi"),fill=$("fill");
   function paint(){const a=(lo-Y0)/(Y1-Y0)*100,b=(hi-Y0)/(Y1-Y0)*100;fill.style.left=a+"%";fill.style.width=(b-a)+"%";
     $("yLo").textContent=lo;$("yHi").textContent=hi;$("periodBadge").textContent=lo+" – "+hi;}
   function syncPresets(){document.querySelectorAll(".preset").forEach(p=>p.classList.toggle("active",+p.dataset.lo===lo&&+p.dataset.hi===hi));}
-  function refresh(){paint();renderKpis();renderTrend();renderShare();renderFields();renderJournals();renderTable();syncPresets();if(cur){cur.k==="u"?openUni(cur.id):openAuthor(cur.id);}}
+  function refresh(){paint();renderKpis();renderTrend();renderShare();renderFields();renderJournals();renderTable();syncPresets();if(cur){cur.k==="u"?openUni(cur.id):(cur.k==="j"?openJournalById(cur.id):openAuthor(cur.id));}}
 
   (function initSelectors(){
     const opts=['<option value="ALL">All journals</option>','<option value="MKT">Marketing journals (4)</option>'];
