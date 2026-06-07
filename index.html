@@ -124,7 +124,11 @@
   tbody tr:hover{background:#FAFAF7;}
   #authTbl th:nth-child(4),#authTbl td:nth-child(4){border-left:2px solid rgba(199,91,18,.4);}
   #authTbl th:nth-child(7),#authTbl td:nth-child(7){border-right:2px solid rgba(199,91,18,.4);}
-  .note-star{color:#3B6EA8;font-weight:700;}
+  #authTbl th:nth-child(9),#authTbl td:nth-child(9){border-right:2px solid rgba(59,110,168,.32);}
+  #authTbl th:nth-child(11),#authTbl td:nth-child(11){border-left:2px solid rgba(47,125,102,.38);border-right:2px solid rgba(47,125,102,.38);}
+  .note-star{font-size:9px;line-height:0;font-weight:700;vertical-align:sub;}
+  .note-star-pct{color:#3B6EA8;}
+  .note-star-active{color:#2F7D66;}
   .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;font-weight:600;}
 
   .tbl-scroll{max-height:600px;overflow:auto;border:1px solid var(--line);border-radius:8px;}
@@ -253,17 +257,17 @@
         <th data-k="mkt">Marketing</th>
         <th data-k="non" title="UTD papers outside marketing, excluding Management Science. Management Science is shown separately.">Non-mktg</th>
         <th data-k="ms">Mgmt Sci</th>
-        <th data-k="pct" title="UTD non-marketing share excluding Management Science; denominator is Total UTD, so Econ top-5 and Psych flagship-5 are not included.">Non-mktg % <span class="note-star">★</span></th>
+        <th data-k="pct" title="UTD non-marketing share excluding Management Science; denominator is Total UTD, so Econ top-5 and Psych flagship-5 are not included.">Non-mktg % <sub class="note-star note-star-pct">★</sub></th>
         <th data-k="econ" title="Papers in the economics 'top 5' (AER, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, Review of Economic Studies). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Econ top-5</th>
         <th data-k="psych" title="Papers in flagship APA psychology journals (Psychological Science, JPSP, Psychological Review, Psychological Bulletin, American Psychologist). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Psych flagship-5</th>
-        <th data-k="yrs" title="Distinct calendar years in which the author had at least one publication (within the selected range)">Active yrs <span class="note-star">★</span></th>
+        <th data-k="yrs" title="Distinct calendar years in which the author had at least one publication (within the selected range)">Active yrs <sub class="note-star note-star-active">★</sub></th>
         <th data-k="ja">Just acc.</th>
         <th data-k="inst" style="text-align:left">University</th>
       </tr></thead>
       <tbody id="tbody"></tbody>
     </table>
     </div>
-    <div style="margin-top:10px;font-size:11.5px;color:var(--muted)"><span class="note-star">★</span> <b>Non-mktg %</b> = UTD non-marketing papers excluding Management Science / Total UTD papers; Econ top-5 and Psych flagship-5 are outside UTD and not included. <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication (within the selected range).</div>
+    <div style="margin-top:10px;font-size:11.5px;color:var(--muted)"><sub class="note-star note-star-pct">★</sub> <b>Non-mktg %</b> = UTD non-marketing papers excluding Management Science / Total UTD papers; Econ top-5 and Psych flagship-5 are outside UTD and not included. <sub class="note-star note-star-active">★</sub> <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication (within the selected range).</div>
   </div>
 
   <details class="method">
