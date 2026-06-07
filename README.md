@@ -1,12 +1,13 @@
 # Marketing Authors' UTD Productivity, 1990–2025
 
-An interactive dashboard of publication output for 4,940 marketing-home authors
-(full-career home field = Marketing) across all 24 UTD-ranked business journals,
-1990–2025 (18,912 papers, de-duplicated to one per author per article).
+An interactive dashboard of publication output for 5,368 marketing-home authors
+(more than 20% of their full-career UTD papers in the marketing journals) across
+all 24 UTD-ranked business journals, 1990–2025 (20,785 papers, de-duplicated to
+one per author per article).
 Author name variants (e.g., "Pradeep Chintagunta" / "Pradeep K Chintagunta")
 are consolidated.
 
-**Live site:** _add your GitHub Pages URL here after publishing_
+**Live site:** https://girishm77.github.io/utd-marketing-productivity/
 
 ## What it shows
 
@@ -22,10 +23,11 @@ All panels refilter to a year range you choose with the slider.
 - `index.html` is fully self-contained — Chart.js is inlined, so it works offline
   and needs no build step or external files.
 - Source: UTD Top-100 Business School Research Rankings extract; marketing-home
-  cohort defined by full-career home field (marketing is the author's single
-  largest field across all years), with normalized author names and papers
-  de-duplicated to one per author per article. Counts are descriptive — see the
-  companion spillover analysis for causal caveats.
+  cohort defined as authors with more than 20% of their full-career papers in the
+  marketing journals (JCR, JM, JMR, Marketing Science) — a superset of the earlier
+  plurality home-field rule — with normalized author names and papers de-duplicated
+  to one per author per article. Counts are descriptive — see the companion
+  spillover analysis for causal caveats.
 
 ## Publishing (GitHub Pages)
 
