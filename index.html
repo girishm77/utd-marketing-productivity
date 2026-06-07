@@ -126,7 +126,7 @@
   #authTbl thead th,#authTbl tbody td{text-align:center;border-right:var(--table-rule);}
   #authTbl thead th{border-bottom:var(--table-rule);}
   #authTbl thead th:nth-child(2),#authTbl tbody td:nth-child(2),
-  #authTbl thead th:nth-child(13),#authTbl tbody td:nth-child(13){text-align:left;}
+  #authTbl thead th:nth-child(12),#authTbl tbody td:nth-child(12){text-align:left;}
   #authTbl thead th:last-child,#authTbl tbody td:last-child{border-right:0;}
   .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;font-weight:600;}
 
@@ -260,7 +260,6 @@
         <th data-k="psych" title="Papers in flagship APA psychology journals (Psychological Science, JPSP, Psychological Review, Psychological Bulletin, American Psychologist). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Psych flagship-5</th>
         <th data-k="yrs" title="Distinct calendar years in which the author had at least one publication (within the selected range)">Active yrs</th>
         <th data-k="ja">Just acc.</th>
-        <th data-k="focus" title="Focus is based on selected-range output: predominantly JMR/JCR mixes are Quant/CB, or Quant/CB/Strat when JM also appears; otherwise CB if JCR plus Psych flagship-5 exceeds 25%, Strategy if JM/JMR >50%, Quantitative if Marketing Science/Management Science/JMR >50%, with mixed labels ordered by the larger side.">Focus</th>
         <th data-k="inst" style="text-align:left">University</th>
       </tr></thead>
       <tbody id="tbody"></tbody>
@@ -273,7 +272,7 @@
     <div class="method-bd">
       <p><b>Cohort.</b> This dashboard tracks a <b>marketing-home</b> cohort: authors with more than 20% of their de-duplicated UTD-journal papers (1990–2025) in the marketing journals (JCR, JM, JMR, Marketing Science) <b>and at least two marketing-journal papers</b>. The two-paper floor removes one-off crossovers — e.g. a psychologist or economist with a single JCR co-authorship — that a bare share rule would otherwise sweep in. Author name variants (e.g. "Pradeep Chintagunta" / "Pradeep K Chintagunta") are consolidated via conservative same-surname clustering, with manual overrides for known homonyms. It is a deliberately wide, descriptive cohort and differs from the narrower pre-2005 cohorts used in the companion causal analysis.</p>
       <p><b>Counts.</b> Papers are de-duplicated to one record per author per article across all 24 UTD-ranked journals. Marketing journals are JCR, JM, JMR, and Marketing Science; everything else is non-marketing. The dashed line on the share chart marks <b>2005</b>, when the UTD Top-100 rankings rose to prominence. <b>Just-accepted</b> counts are forthcoming / online-first papers (online but not yet assigned to a print issue) for the four marketing journals plus Management Science, via Crossref — these are not year-filtered.</p>
-      <p><b>Table notes.</b> <b>Non-mktg %</b> = UTD non-marketing papers excluding Management Science / Total UTD papers; Econ top-5 and Psych flagship-5 are outside UTD and not included. <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication within the selected range. <b>Focus</b> first handles predominantly JMR/JCR mixes: if JMR plus JCR is more than 50% of selected-range UTD output and both journals appear, the label is Quant/CB, or Quant/CB/Strat when JM also appears. Otherwise, Focus labels authors CB if JCR plus Psych flagship-5 is more than 25% of selected-range UTD plus Psych flagship-5 output. Remaining labels use selected-range UTD output: Strategy if JM/JMR is more than 50%, and Quantitative if Marketing Science/Management Science/JMR is more than 50%. Split labels require each side to be at least 20% and the combined journal set to exceed 50%, and the larger side is listed first: CB/Strat or Strat/CB = JCR with JM/JMR, CB/Quant or Quant/CB = JCR with Marketing Science/Management Science, and Strat/Quant or Quant/Strat = JM/JMR with Marketing Science/Management Science/JMR.</p>
+      <p><b>Table notes.</b> <b>Non-mktg %</b> = UTD non-marketing papers excluding Management Science / Total UTD papers; Econ top-5 and Psych flagship-5 are outside UTD and not included. <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication within the selected range.</p>
       <p><b>Economics &amp; psychology (Econ top-5 / Psych flagship-5).</b> These columns and chart bars count papers the same cohort authors published in high-prestige journals <i>outside</i> the 24 UTD set. Because those journals are not in the UTD extract, the counts were obtained from <a href="https://openalex.org" target="_blank" rel="noopener">OpenAlex</a>: for each target journal we pulled every article 1990–2025 by ISSN and matched its authors to the cohort using the same conservative name matcher as the just-accepted column. They respect the year-range slider. <b>Economics "top 5":</b> American Economic Review, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, and the Review of Economic Studies. <b>Psychology flagship (APA):</b> Psychological Science, Journal of Personality and Social Psychology, Psychological Review, Psychological Bulletin, and American Psychologist. Because matching is by author name only (no ORCID or institution disambiguation), treat Econ top-5 / Psych flagship-5 as a screening estimate — lower-confidence than the UTD-based columns.</p>
       <p><b>Caveats.</b> UTD supplies author <i>names</i>, not stable identifiers, so name-based matching can over- or under-merge scholars. All figures here are <b>descriptive, not causal</b> — see the companion spillover analysis for difference-in-differences estimates and identification caveats.</p>
       <p><b>Source &amp; code.</b> Built from a UTD Top-100 Business School Research Rankings extract. Code and notes: <a href="https://github.com/girishm77/utd-marketing-productivity" target="_blank" rel="noopener">github.com/girishm77/utd-marketing-productivity</a>.</p>
@@ -334,7 +333,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2553,"records":17264,"
   function authorDisplay(name){const p=authorNameParts(name);return p.first?p.last+", "+p.first+(p.suffix?", "+p.suffix:""):p.last;}
   function authorSortKey(name){const p=authorNameParts(name);return (p.last+" "+p.first+" "+p.suffix).toLocaleLowerCase();}
   function cmpAuthor(a,b){return (a.nameKey||authorSortKey(a.author)).localeCompare(b.nameKey||authorSortKey(b.author))||a.author.localeCompare(b.author);}
-  function cmpRank(a,b,k,dir){if(k==="author")return dir*cmpAuthor(a,b);if(k==="inst"){const d=(""+a.inst).localeCompare(""+b.inst);return dir*d||cmpAuthor(a,b);}if(k==="focus"){const d=(""+a.focus).localeCompare(""+b.focus);return dir*d||cmpAuthor(a,b);}const d=dir*((a[k]||0)-(b[k]||0));return d||cmpAuthor(a,b);}
+  function cmpRank(a,b,k,dir){if(k==="author")return dir*cmpAuthor(a,b);if(k==="inst"){const d=(""+a.inst).localeCompare(""+b.inst);return dir*d||cmpAuthor(a,b);}const d=dir*((a[k]||0)-(b[k]||0));return d||cmpAuthor(a,b);}
   const FCOL={"Marketing":"#C75B12","Operations/Management Science":"#3B6EA8",
     "Management/Strategy":"#2A9D8F","Information Systems":"#C8962E",
     "International Business":"#2F7D66","Finance":"#A9413B","Accounting":"#7E6CA8",
@@ -343,8 +342,6 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2553,"records":17264,"
   const Y0=DATA.meta.years[0], Y1=DATA.meta.years[1];
   const JAB=DATA.jabbr, JF=JAB.map(ab=>DATA.journalMap[ab].field);
   const MSI=JAB.indexOf("Management Science");
-  const JCRI=JAB.indexOf("Journal of Consumer Research"), JMI=JAB.indexOf("Journal of Marketing"),
-    JMRI=JAB.indexOf("Journal of Marketing Research"), MKSCI=JAB.indexOf("Marketing Science");
   const JNLC=JAB.map(ab=>DATA.journalMap[ab].name.toLowerCase());
   const UNISET=new Set((DATA.inst||[]).flat().filter(Boolean));
   const JASUM=(DATA.ja||[]).reduce((s,v)=>s+(v||0),0), JAAUTH=(DATA.ja||[]).filter(v=>v>0).length;
@@ -355,45 +352,6 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2553,"records":17264,"
   // paper records: [year, authorIdx, journalIdx]
   function jpass(j){ return journalSel==="ALL" || (journalSel==="MKT"?JF[j]==="Marketing":JAB[j]===journalSel); }
   function upass(a){ return uniSel==="ALL" || (DATA.inst[a]||[]).includes(uniSel); }
-  function selectedPsychCount(a){
-    let ps=0;
-    if(DATA.ext)for(const x of DATA.ext){const y=x[0];if(x[1]===a&&y>=lo&&y<=hi)ps+=x[3];}
-    return ps;
-  }
-  function classifyAuthor(a){
-    const c={total:0,jcr:0,jm:0,jmr:0,mksc:0,mgmt:0};
-    for(const p of DATA.papers){const y=p[0],ai=p[1],j=p[2];
-      if(ai!==a||y<lo||y>hi||!upass(ai))continue;
-      c.total++; if(j===JCRI)c.jcr++; if(j===JMI)c.jm++; if(j===JMRI)c.jmr++; if(j===MKSCI)c.mksc++; if(j===MSI)c.mgmt++;}
-    if(!c.total)return {label:"—",share:0};
-    const jmrJcrShare=(c.jmr+c.jcr)/c.total;
-    if(c.jmr>0&&c.jcr>0&&jmrJcrShare>.5)return {label:c.jm>0?"Quant/CB/Strat":"Quant/CB",share:jmrJcrShare};
-    const psych=selectedPsychCount(a), cbPriorityDenom=c.total+psych, cbPriorityShare=cbPriorityDenom?(c.jcr+psych)/cbPriorityDenom:0;
-    if(cbPriorityShare>.25)return {label:"CB",share:cbPriorityShare};
-    const cb=c.jcr/c.total, strat=(c.jm+c.jmr)/c.total, quant=(c.mksc+c.mgmt+c.jmr)/c.total, quantCore=(c.mksc+c.mgmt)/c.total;
-    const cbStrat=(c.jcr+c.jm+c.jmr)/c.total, cbQuant=(c.jcr+c.mksc+c.mgmt)/c.total, stratQuant=(c.jm+c.jmr+c.mksc+c.mgmt)/c.total;
-    const reasonable=(a,b,u)=>a>=.2&&b>=.2&&u>.5;
-    const cbStratSplit=reasonable(cb,strat,cbStrat), cbQuantSplit=reasonable(cb,quantCore,cbQuant), stratQuantSplit=reasonable(strat,quant,stratQuant);
-    const orderPair=(left,leftN,right,rightN)=>(rightN>leftN?right+"/"+left:left+"/"+right);
-    const orderAreas=(areas)=>{
-      const score={CB:c.jcr,Strat:c.jm+c.jmr,Quant:c.mksc+c.mgmt+c.jmr}, tie={CB:0,Strat:1,Quant:2};
-      return areas.sort((x,y)=>score[y]-score[x]||tie[x]-tie[y]).join("/");
-    };
-    const splitLabels=[];
-    if(cbStratSplit)splitLabels.push(orderPair("CB",c.jcr,"Strat",c.jm+c.jmr));
-    if(cbQuantSplit)splitLabels.push(orderPair("CB",c.jcr,"Quant",c.mksc+c.mgmt));
-    if(stratQuantSplit)splitLabels.push(orderPair("Strat",c.jm+c.jmr,"Quant",c.mksc+c.mgmt+c.jmr));
-    if(splitLabels.length>1){
-      const areas=new Set();
-      for(const label of splitLabels)for(const area of label.split("/"))areas.add(area);
-      return {label:orderAreas([...areas]),share:Math.max(cb,strat,quant)};
-    }
-    if(splitLabels.length===1)return {label:splitLabels[0],share:Math.max(cb,strat,quant)};
-    if(cb>.5)return {label:"CB",share:cb};
-    if(strat>.5)return {label:"Strategy",share:strat};
-    if(quant>.5)return {label:"Quantitative",share:quant};
-    return {label:"Mixed",share:0};
-  }
 
   function rangeAgg(){
     let total=0,mkt=0;const jc=new Array(JAB.length).fill(0);const set=new Set();const yc={};
@@ -413,7 +371,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2553,"records":17264,"
       o.total++; if(JF[j]==="Marketing")o.mkt++; else if(j===MSI)o.ms++; else o.non++; o.ys.add(y); o.js.add(j);}
     // external econ/psych counts (OpenAlex), summed within the year range, added to authors already in the table
     if(DATA.ext)for(const e of DATA.ext){const y=e[0],a=e[1];if(y<lo||y>hi)continue;const o=m.get(a);if(o){o.econ+=e[2];o.psych+=e[3];}}
-    const arr=[...m.values()]; for(const o of arr){const focus=classifyAuthor(o.a);o.focus=focus.label;o.focusShare=focus.share;o.yrs=o.ys.size; o.pct=o.total?+(o.non/o.total*100).toFixed(1):0; delete o.ys;}
+    const arr=[...m.values()]; for(const o of arr){o.yrs=o.ys.size; o.pct=o.total?+(o.non/o.total*100).toFixed(1):0; delete o.ys;}
     return arr;
   }
   function yearSeries(){ // journal+university filtered, all years
@@ -532,11 +490,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2553,"records":17264,"
     $("jlegend").innerHTML=rows.map(r=>'<button type="button" class="jlink" data-jid="'+esc(r.id)+'"><span class="dot" style="background:'+FCOL[r.field]+'"></span>'+esc(r.name)+'</button>').join("");
   }
 
-  const NOTE={total:"total papers",mkt:"marketing",non:"non-marketing",pct:"non-mktg %",econ:"econ top-5",psych:"psych flagship-5",yrs:"active years",ja:"just-accepted",focus:"focus",ms:"Management Science",inst:"university",author:"last name"};
-  function focusHTML(label){
-    const color=label.includes("Consumer")?"#C75B12":label.includes("Quantitative")?"#3B6EA8":label.includes("strategy")?"#2A9D8F":"#667085";
-    return '<span class="pill" style="background:'+color+'22;color:'+color+'">'+esc(label)+'</span>';
-  }
+  const NOTE={total:"total papers",mkt:"marketing",non:"non-marketing",pct:"non-mktg %",econ:"econ top-5",psych:"psych flagship-5",yrs:"active years",ja:"just-accepted",ms:"Management Science",inst:"university",author:"last name"};
   function renderTable(){
     let rows=authorAgg();
     if(query)rows=rows.filter(r=>r.author.toLowerCase().includes(query)||r.display.toLowerCase().includes(query));
@@ -550,7 +504,6 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2553,"records":17264,"
       '<td>'+(r.psych?'<span class="pill" style="background:rgba(126,108,168,.18);color:#7E6CA8">'+r.psych+'</span>':'<span style="color:#b6bcc6">·</span>')+'</td>'+
       '<td>'+r.yrs+'</td>'+
       '<td>'+(r.ja?'<span class="pill" style="background:rgba(47,125,102,.16);color:#2F7D66">'+r.ja+'</span>':'<span style="color:#b6bcc6">·</span>')+'</td>'+
-      '<td>'+focusHTML(r.focus)+'</td>'+
       '<td style="text-align:left">'+((r.inst&&r.inst.length)?r.inst.map(u=>'<span class="unilink" data-uni="'+esc(u)+'">'+esc(u)+'</span>').join('<br>'):'—')+'</td>'+'</tr>').join("");
     const jl=journalSel==="ALL"?"all journals":(journalSel==="MKT"?"marketing journals":journalSel);
     const ul=uniSel==="ALL"?"all universities":uniSel;
