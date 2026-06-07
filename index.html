@@ -252,11 +252,11 @@
         <th data-k="author">Author</th>
         <th data-k="total" class="sorted">Total UTD ▾</th>
         <th data-k="mkt">Marketing</th>
-        <th data-k="non">Non-mktg</th>
+        <th data-k="non" title="UTD papers outside marketing, excluding Management Science. Management Science is shown separately.">Non-mktg</th>
         <th data-k="ms">Mgmt Sci</th>
-        <th data-k="pct">Non-mktg %</th>
         <th data-k="econ" title="Papers in the economics 'top 5' (AER, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, Review of Economic Studies). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Econ top-5</th>
         <th data-k="psych" title="Papers in flagship APA psychology journals (Psychological Science, JPSP, Psychological Review, Psychological Bulletin, American Psychologist). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Psych flagship-5</th>
+        <th data-k="pct" title="UTD non-marketing share excluding Management Science; denominator is Total UTD, so Econ top-5 and Psych flagship-5 are not included.">Non-mktg % <span style="color:#C75B12">★</span></th>
         <th data-k="yrs" title="Distinct calendar years in which the author had at least one publication (within the selected range)">Active yrs <span style="color:#C75B12">★</span></th>
         <th data-k="ja">Just acc.</th>
         <th data-k="inst" style="text-align:left">University</th>
@@ -264,7 +264,7 @@
       <tbody id="tbody"></tbody>
     </table>
     </div>
-    <div style="margin-top:10px;font-size:11.5px;color:var(--muted)"><span style="color:#C75B12">★</span> <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication (within the selected range).</div>
+    <div style="margin-top:10px;font-size:11.5px;color:var(--muted)"><span style="color:#C75B12">★</span> <b>Non-mktg %</b> = UTD non-marketing papers excluding Management Science / Total UTD papers; Econ top-5 and Psych flagship-5 are outside UTD and not included. <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication (within the selected range).</div>
   </div>
 
   <details class="method">
@@ -373,7 +373,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
       if(y<lo||y>hi||!jpass(j)||!upass(a))continue;
       let o=m.get(a);
       if(!o){const author=DATA.names[a];o={a,author,display:authorDisplay(author),nameKey:authorSortKey(author),inst:DATA.inst[a]||[],ja:(DATA.ja[a]||0),econ:0,psych:0,total:0,mkt:0,non:0,ms:0,ys:new Set(),js:new Set()};m.set(a,o);}
-      o.total++; if(JF[j]==="Marketing")o.mkt++; else {o.non++; if(j===MSI)o.ms++;} o.ys.add(y); o.js.add(j);}
+      o.total++; if(JF[j]==="Marketing")o.mkt++; else if(j===MSI)o.ms++; else o.non++; o.ys.add(y); o.js.add(j);}
     // external econ/psych counts (OpenAlex), summed within the year range, added to authors already in the table
     if(DATA.ext)for(const e of DATA.ext){const y=e[0],a=e[1];if(y<lo||y>hi)continue;const o=m.get(a);if(o){o.econ+=e[2];o.psych+=e[3];}}
     const arr=[...m.values()]; for(const o of arr){o.yrs=o.ys.size; o.pct=o.total?+(o.non/o.total*100).toFixed(1):0; delete o.ys;}
@@ -504,9 +504,10 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
     $("tbody").innerHTML=rows.map((r,i)=>'<tr data-ai="'+r.a+'">'+
       '<td>'+(i+1)+'</td><td class="authlink">'+esc(r.display)+'</td>'+
       '<td class="bar-cell"><div class="barbg" style="width:'+((r.total/max*100)*0.9)+'%"></div><span>'+fmt(r.total)+'</span></td>'+
-      '<td>'+fmt(r.mkt)+'</td><td>'+fmt(r.non)+'</td><td>'+fmt(r.ms)+'</td><td>'+r.pct+'%</td>'+
+      '<td>'+fmt(r.mkt)+'</td><td>'+fmt(r.non)+'</td><td>'+fmt(r.ms)+'</td>'+
       '<td>'+(r.econ?'<span class="pill" style="background:rgba(59,110,168,.16);color:#3B6EA8">'+r.econ+'</span>':'<span style="color:#b6bcc6">·</span>')+'</td>'+
       '<td>'+(r.psych?'<span class="pill" style="background:rgba(126,108,168,.18);color:#7E6CA8">'+r.psych+'</span>':'<span style="color:#b6bcc6">·</span>')+'</td>'+
+      '<td>'+r.pct+'%</td>'+
       '<td>'+r.yrs+'</td>'+
       '<td>'+(r.ja?'<span class="pill" style="background:rgba(47,125,102,.16);color:#2F7D66">'+r.ja+'</span>':'<span style="color:#b6bcc6">·</span>')+'</td>'+
       '<td style="text-align:left">'+((r.inst&&r.inst.length)?r.inst.map(u=>'<span class="unilink" data-uni="'+esc(u)+'">'+esc(u)+'</span>').join('<br>'):'—')+'</td>'+'</tr>').join("");
@@ -530,7 +531,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
   function uniAuthorRows(uni){const m=new Map();
     for(const q of DATA.papers){const y=q[0],a=q[1],j=q[2];if(y<lo||y>hi||!(DATA.inst[a]||[]).includes(uni))continue;
       let o=m.get(a);if(!o){const author=DATA.names[a];o={a,author,display:authorDisplay(author),nameKey:authorSortKey(author),total:0,mkt:0,non:0,econ:0,psych:0};m.set(a,o);}
-      o.total++;if(JF[j]==="Marketing")o.mkt++;else o.non++;}
+      o.total++;if(JF[j]==="Marketing")o.mkt++;else if(j!==MSI)o.non++;}
     if(DATA.ext)for(const x of DATA.ext){const y=x[0],a=x[1];if(y<lo||y>hi||!(DATA.inst[a]||[]).includes(uni))continue;
       const o=m.get(a);if(o){o.econ+=x[2];o.psych+=x[3];}}
     return [...m.values()].sort((a,b)=>(b.total-a.total)||cmpAuthor(a,b));}
@@ -548,7 +549,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2556,"records":17209,"
     const get=a=>{let o=m.get(a);if(!o){const author=DATA.names[a];o={a,author,display:authorDisplay(author),nameKey:authorSortKey(author),total:0,mkt:0,non:0,econ:0,psych:0};m.set(a,o);}return o;};
     if(row.kind==="utd"){
       for(const q of DATA.papers){const y=q[0],a=q[1],j=q[2];if(y<lo||y>hi||j!==row.j||!upass(a))continue;
-        const o=get(a);o.total++;if(JF[j]==="Marketing")o.mkt++;else o.non++;}
+        const o=get(a);o.total++;if(JF[j]==="Marketing")o.mkt++;else if(j!==MSI)o.non++;}
     }else if(DATA.ext){
       const ix=row.kind==="econ"?2:3;
       for(const x of DATA.ext){const y=x[0],a=x[1],v=x[ix];if(!v||y<lo||y>hi||!upass(a))continue;
