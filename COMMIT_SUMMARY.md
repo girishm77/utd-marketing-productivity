@@ -1,20 +1,22 @@
 # Commit summary
 
 ## Suggested commit title
-Update dashboard non-marketing table definitions
+Update dashboard data and author disambiguation
 
 ## Suggested commit body
-- Reordered the author table metrics to `Total UTD`, `Marketing`, `Mgmt Sci`, `Non-mktg`, and `Non-mktg %`.
-- Defined `Non-mktg` as all UTD journals except JM, JMR, JCR, Marketing Science, and Management Science.
-- Calculated `Non-mktg %` from the updated `Non-mktg` count divided by `Total UTD`.
-- Updated README and fallback dashboard copy so GitHub-facing files no longer show old cohort counts or the prior column description.
+- Removed the experimental `Focus` column from the author productivity table.
+- Added the destination-journal click hint and kept journal clicks opening author rankings by destination.
+- Corrected Christian Homburg's displayed university to University of Mannheim.
+- Split the `Xi Li` homonym so the marketing/HKU-path Xi Li keeps the Toronto, CityU Hong Kong, and University of Hong Kong papers, while accounting/finance namesakes are excluded from that dashboard author.
+- Added a broader Chinese-name homonym pass for exact-name collisions including Jie Zhang, Ying Zhang, Yang Yang, Yang Li, Yang Wang, Li Xiao, Qinghai Wang, Xiao Liu, Cheng Zhang, Jing Xu, Tao Chen, Xiaolin Li, Yi Liu, and Song Lin.
+- Appended affiliation brackets to remaining duplicate display names; the two dashboard Jing Wang identities now display with their universities.
+- Updated the embedded dashboard DATA snapshot to 2026-06-08.
 
 ## Files included
 - `index.html`
-- `README.md`
 - `COMMIT_SUMMARY.md`
 
 ## Verification
-- Browser verification on a fresh localhost URL showed the expected column order.
-- Sample first row rendered as `91 / 79 / 12 / 0 / 0%`, confirming `Mgmt Sci` and `Non-mktg` are separated.
-- Checked the first 40 rendered rows for `Non-mktg % = Non-mktg / Total UTD`; no mismatches.
+- `scripts/ja_update.py` completed with `done.` and reported `matched to cohort: 156 | authors with >=1 just-accepted: 145`.
+- Xi Li now has 16 dashboard papers and displays University of Hong Kong.
+- The generated dashboard DATA reports 2,551 cohort authors, 17,167 cohort papers, and zero duplicate display names.
