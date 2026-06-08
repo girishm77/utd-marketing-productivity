@@ -333,8 +333,10 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2551,"records":17167,"
     while(start>0&&NAME_PARTICLES.has(parts[start-1].replace(/[.]/g,"").toLowerCase()))start--;
     return {first:parts.slice(0,start).join(" "),last:parts.slice(start).join(" ").replace(/,$/,""),suffix:suffix.join(" ")};
   }
-  function authorDisplay(name){const p=authorNameParts(name);return p.first?p.last+", "+p.first+(p.suffix?", "+p.suffix:""):p.last;}
-  function authorSortKey(name){const p=authorNameParts(name);return (p.last+" "+p.first+" "+p.suffix).toLocaleLowerCase();}
+  function authorBaseName(name){return (""+(name||"")).trim().replace(/\s+\([^)]*\)$/,"");}
+  function hasUniversityDisambiguator(name){return /\s+\([^)]*\)$/.test(""+(name||""));}
+  function authorDisplay(name){if(hasUniversityDisambiguator(name))return (""+name).trim();const p=authorNameParts(name);return p.first?p.last+", "+p.first+(p.suffix?", "+p.suffix:""):p.last;}
+  function authorSortKey(name){const p=authorNameParts(authorBaseName(name));return (p.last+" "+p.first+" "+p.suffix+" "+((""+(name||"")).match(/\s+\(([^)]*)\)$/)||["",""])[1]).toLocaleLowerCase();}
   function cmpAuthor(a,b){return (a.nameKey||authorSortKey(a.author)).localeCompare(b.nameKey||authorSortKey(b.author))||a.author.localeCompare(b.author);}
   function cmpRank(a,b,k,dir){if(k==="author")return dir*cmpAuthor(a,b);if(k==="inst"){const d=(""+a.inst).localeCompare(""+b.inst);return dir*d||cmpAuthor(a,b);}const d=dir*((a[k]||0)-(b[k]||0));return d||cmpAuthor(a,b);}
   const FCOL={"Marketing":"#C75B12","Operations/Management Science":"#3B6EA8",
