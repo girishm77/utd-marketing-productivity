@@ -1,13 +1,13 @@
 # Commit summary
 
 ## Suggested commit title
-Update dashboard table and correct Homburg affiliation
+Update dashboard non-marketing table definitions
 
 ## Suggested commit body
-- Removed the experimental `Focus` column from the author productivity table.
-- Kept table definitions in the methodology/caveats section instead of below the table.
-- Added the destination-journal click hint and kept journal clicks opening author rankings by destination.
-- Corrected Christian Homburg's displayed university to University of Mannheim.
+- Reordered the author table metrics to `Total UTD`, `Marketing`, `Mgmt Sci`, `Non-mktg`, and `Non-mktg %`.
+- Defined `Non-mktg` as all UTD journals except JM, JMR, JCR, Marketing Science, and Management Science.
+- Calculated `Non-mktg %` from the updated `Non-mktg` count divided by `Total UTD`.
+- Updated README and fallback dashboard copy so GitHub-facing files no longer show old cohort counts or the prior column description.
 
 ## Files included
 - `index.html`
@@ -15,6 +15,6 @@ Update dashboard table and correct Homburg affiliation
 - `COMMIT_SUMMARY.md`
 
 ## Verification
-- Dashboard JavaScript compiles cleanly.
-- The author table no longer includes a `Focus` column.
-- Christian Homburg resolves to `["University of Mannheim"]` in the embedded dashboard data.
+- Browser verification on a fresh localhost URL showed the expected column order.
+- Sample first row rendered as `91 / 79 / 12 / 0 / 0%`, confirming `Mgmt Sci` and `Non-mktg` are separated.
+- Checked the first 40 rendered rows for `Non-mktg % = Non-mktg / Total UTD`; no mismatches.
