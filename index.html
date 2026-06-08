@@ -175,7 +175,7 @@
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="copyright">© <a href="https://scholar.google.com/citations?user=QbqzVxUAAAAJ&hl=en&authuser=1" target="_blank" rel="noopener">Girish Mallapragada</a><span class="affil">PetSmart, Inc. Distinguished Professor in Marketing &amp; Chair<br>Kelley School of Business, Indiana University</span></div>
+    <div class="copyright">© <a href="https://scholar.google.com/citations?user=QbqzVxUAAAAJ&hl=en&authuser=1" target="_blank" rel="noopener">Girish Mallapragada</a><span class="affil">PetSmart, Inc. Distinguished Professor in Marketing Chair<br>Kelley School of Business, Indiana University</span></div>
     <div>
       <h1 class="serif">Marketing Authors' UTD Productivity</h1>
       <div class="sub">Publication output of <b id="mAuthors">2,553</b> marketing-home authors — more than 20% of their full-career UTD papers are in the marketing journals and at least two are marketing-journal papers, with author name variants consolidated — across all <b id="mJournals">24</b> UTD-ranked journals, <span id="mYears">1990–2025</span> (<b id="mPapers">17,264</b> papers). Drag the year range to refilter every panel.</div>
@@ -252,7 +252,7 @@
     <div class="tbl-scroll">
     <table id="authTbl">
       <thead><tr>
-        <th data-k="rank">#</th>
+        <th data-k="rank" title="Rank by Total UTD papers (held even when you search or re-sort)">#</th>
         <th data-k="author">Author</th>
         <th data-k="total" class="sorted">Total UTD ▾</th>
         <th data-k="mkt">Marketing</th>
@@ -501,10 +501,13 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2551,"records":17167,"
   const NOTE={total:"total papers",mkt:"marketing",non:"non-marketing",pct:"non-mktg %",econ:"econ top-5",psych:"psych top-5",yrs:"active years",ja:"just-accepted",ms:"Management Science",inst:"university",author:"last name"};
   function renderTable(){
     let rows=authorAgg();
+    const ranked=[...rows].sort((a,b)=>(b.total-a.total)||cmpAuthor(a,b));
+    const rankOf=new Map();
+    ranked.forEach((r,i)=>{rankOf.set(r.a,(i>0&&r.total===ranked[i-1].total)?rankOf.get(ranked[i-1].a):i+1);});
     if(query)rows=rows.filter(r=>r.author.toLowerCase().includes(query)||r.display.toLowerCase().includes(query));
     rows.sort((a,b)=>cmpRank(a,b,sortK,sortDir));
     $("tbody").innerHTML=rows.map((r,i)=>'<tr data-ai="'+r.a+'">'+
-      '<td>'+(i+1)+'</td><td class="authlink">'+esc(r.display)+'</td>'+
+      '<td>'+rankOf.get(r.a)+'</td><td class="authlink">'+esc(r.display)+'</td>'+
       '<td>'+fmt(r.total)+'</td>'+
       '<td>'+fmt(r.mkt)+'</td><td>'+fmt(r.ms)+'</td><td>'+fmt(r.non)+'</td>'+
       '<td>'+r.pct+'%</td>'+
