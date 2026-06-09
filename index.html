@@ -214,19 +214,19 @@
   <div class="grid">
     <div class="panel full">
       <h3>Annual publication output</h3>
-      <div class="ph-sub">Marketing vs. non-marketing UTD papers per year, with the count of distinct active authors. Years outside the selected range are dimmed.</div>
+      <div class="ph-sub">Marketing vs. outside-marketing UTD papers per year, with the count of distinct active authors. Years outside the selected range are dimmed.</div>
       <div class="chart-h tall"><canvas id="trend"></canvas></div>
     </div>
 
     <div class="panel">
-      <h3>Non-marketing share over time</h3>
+      <h3>Outside-marketing share over time</h3>
       <div class="ph-sub">Percent of the cohort's UTD output landing outside marketing journals. Dashed line marks the 2005 ranking onset.</div>
       <div class="chart-h"><canvas id="share"></canvas></div>
     </div>
 
     <div class="panel">
-      <h3>Where the non-marketing work goes <span style="font-weight:400;color:var(--muted);font-size:13px">(incl. econ &amp; psych)</span></h3>
-      <div class="ph-sub">Non-marketing papers by field, within the selected range.</div>
+      <h3>Where the outside-marketing work goes <span style="font-weight:400;color:var(--muted);font-size:13px">(incl. econ &amp; psych)</span></h3>
+      <div class="ph-sub">Outside-marketing papers by field, within the selected range.</div>
       <div class="chart-h"><canvas id="fields"></canvas></div>
     </div>
 
@@ -405,7 +405,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2551,"records":17167,"
     const cards=[
       {v:fmt(a.total),k:"Papers (filtered)",d:lo+"–"+hi,c:"var(--ink)"},
       {v:mktPct.toFixed(1)+"%",k:"Marketing share",d:fmt(a.mkt)+" papers",c:"var(--orange)"},
-      {v:fmt(a.non),k:"Non-marketing papers",d:nonPct.toFixed(1)+"% of output",c:"var(--blue)"},
+      {v:fmt(a.non),k:"Outside-marketing papers",d:nonPct.toFixed(1)+"% of output",c:"var(--blue)"},
       {v:fmt(a.authors),k:"Distinct authors",d:"in selection",c:"var(--green)"},
       {v:a.peak.total?a.peak.year:"—",k:"Peak output year",d:a.peak.total?fmt(a.peak.total)+" papers":"",c:"var(--teal)"},
       {v:a.jactive+"/"+JAB.length,k:"Journals with output",d:"UTD-ranked",c:"var(--gold)"},
@@ -421,11 +421,11 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2551,"records":17167,"
     if(!trendCh){
       trendCh=new Chart($("trend"),{type:"bar",data:{labels:s.yrs,datasets:[
         {label:"Marketing",stack:"p",order:2,categoryPercentage:.8,barPercentage:.92,data:s.mk,backgroundColor:dim("#C75B12")},
-        {label:"Non-marketing",stack:"p",order:2,categoryPercentage:.8,barPercentage:.92,data:s.nn,backgroundColor:dim("#3B6EA8")},
+        {label:"Outside-marketing",stack:"p",order:2,categoryPercentage:.8,barPercentage:.92,data:s.nn,backgroundColor:dim("#3B6EA8")},
         {label:"Distinct authors",type:"line",yAxisID:"y1",order:1,data:s.au,borderColor:"#2F7D66",backgroundColor:"#2F7D66",borderWidth:2,tension:.3,pointRadius:0,pointHoverRadius:4}
       ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
         plugins:{legend:{position:"top",align:"end",labels:{usePointStyle:true,boxWidth:8,padding:14}},
-          tooltip:{callbacks:{footer:it=>{const i=it[0].dataIndex,d=it[0].chart.data.datasets,t=d[0].data[i]+d[1].data[i];return "Total: "+t+"  ·  non-mktg "+(t?(d[1].data[i]/t*100).toFixed(1):0)+"%";}}}},
+          tooltip:{callbacks:{footer:it=>{const i=it[0].dataIndex,d=it[0].chart.data.datasets,t=d[0].data[i]+d[1].data[i];return "Total: "+t+"  ·  outside-marketing "+(t?(d[1].data[i]/t*100).toFixed(1):0)+"%";}}}},
         scales:{x:baseScales({stacked:true,ticks:{color:MUTED,maxRotation:0,autoSkip:true,maxTicksLimit:14}}),
           y:baseScales({stacked:true,title:{display:true,text:"Papers",color:MUTED}}),
           y1:{position:"right",grid:{drawOnChartArea:false},ticks:{color:"#2F7D66"},title:{display:true,text:"Distinct authors",color:"#2F7D66"}}}}});
@@ -444,8 +444,8 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2551,"records":17167,"
         const x=ch.scales.x.getPixelForValue(2005),t=ch.chartArea.top,b=ch.chartArea.bottom,cx=ch.ctx;
         cx.save();cx.strokeStyle="#A9413B";cx.setLineDash([5,4]);cx.lineWidth=1.3;cx.beginPath();cx.moveTo(x,t);cx.lineTo(x,b);cx.stroke();
         cx.setLineDash([]);cx.fillStyle="#A9413B";cx.font="600 11px sans-serif";cx.fillText("2005 onset",x+5,t+12);cx.restore();}};
-      shareCh=new Chart($("share"),{type:"line",data:{labels:s.yrs,datasets:[{label:"Non-marketing %",data:share,borderColor:"#3B6EA8",backgroundColor:"rgba(59,110,168,.10)",fill:true,tension:.3,pointBackgroundColor:pt,pointRadius:3,pointHoverRadius:5,borderWidth:2}]},
-        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+"% non-marketing"}}},
+      shareCh=new Chart($("share"),{type:"line",data:{labels:s.yrs,datasets:[{label:"Outside-marketing %",data:share,borderColor:"#3B6EA8",backgroundColor:"rgba(59,110,168,.10)",fill:true,tension:.3,pointBackgroundColor:pt,pointRadius:3,pointHoverRadius:5,borderWidth:2}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+"% outside-marketing"}}},
           scales:{x:baseScales({ticks:{color:MUTED,maxRotation:0,autoSkip:true,maxTicksLimit:12}}),
             y:baseScales({ticks:{color:MUTED,callback:v=>v+"%"},title:{display:true,text:"Share outside marketing",color:MUTED}})}}});
       Chart.register(marker);shareCh.update();
