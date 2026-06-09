@@ -257,8 +257,8 @@
         <th data-k="total" class="sorted">Total UTD ▾</th>
         <th data-k="mkt">MKTG-4</th>
         <th data-k="ms" title="Management Science papers, shown separately from the other non-marketing UTD journals.">Mgmt Sci</th>
-        <th data-k="non" title="All other UTD journals except Journal of Marketing, Journal of Marketing Research, Journal of Consumer Research, Marketing Science, and Management Science.">CrossDisc</th>
-        <th data-k="pct" title="UTD cross-disciplinary share excluding Management Science; denominator is Total UTD, so Econ top-5 and Psych top-5 are not included.">CrossDisc %</th>
+        <th data-k="non" title="All other UTD journals except Journal of Marketing, Journal of Marketing Research, Journal of Consumer Research, Marketing Science, and Management Science.">X-Disc</th>
+        <th data-k="pct" title="UTD cross-disciplinary share excluding Management Science; denominator is Total UTD, so Econ top-5 and Psych top-5 are not included.">X-Disc %</th>
         <th data-k="econ" title="Papers in the economics 'top 5' (AER, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, Review of Economic Studies). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Econ top-5</th>
         <th data-k="psych" title="Papers in top-5 APA psychology journals (Psychological Science, JPSP, Psychological Review, Psychological Bulletin, American Psychologist). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Psych top-5</th>
         <th data-k="yrs" title="Distinct calendar years in which the author had at least one publication (within the selected range)">Active yrs</th>
@@ -274,8 +274,8 @@
     <summary>Methodology &amp; caveats</summary>
     <div class="method-bd">
       <p><b>Cohort.</b> This dashboard tracks a <b>marketing-home</b> cohort: authors with more than 20% of their de-duplicated UTD-journal papers (1990–2025) in the marketing journals (JCR, JM, JMR, Marketing Science) <b>and at least two marketing-journal papers</b>. The two-paper floor removes one-off crossovers — e.g. a psychologist or economist with a single JCR co-authorship — that a bare share rule would otherwise sweep in. Author name variants (e.g. "Pradeep Chintagunta" / "Pradeep K Chintagunta") are consolidated via conservative same-surname clustering, with manual overrides for known homonyms. It is a deliberately wide, descriptive cohort and differs from the narrower pre-2005 cohorts used in the companion causal analysis.</p>
-      <p><b>Counts.</b> Papers are de-duplicated to one record per author per article across all 24 UTD-ranked journals. MKTG-4 journals are JCR, JM, JMR, and Marketing Science; Management Science is shown separately in the author table, with the remaining UTD journals counted as CrossDisc. The dashed line on the share chart marks <b>2005</b>, when the UTD Top-100 rankings rose to prominence. <b>Just-accepted</b> counts are forthcoming / online-first papers (online but not yet assigned to a print issue) for the four marketing journals plus Management Science, via Crossref — these are not year-filtered.</p>
-      <p><b>Table notes.</b> <b>CrossDisc</b> = UTD papers in all journals except Journal of Marketing, Journal of Marketing Research, Journal of Consumer Research, Marketing Science, and Management Science. <b>CrossDisc %</b> = that CrossDisc count / Total UTD papers; Econ top-5 and Psych top-5 are outside UTD and not included. <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication within the selected range.</p>
+      <p><b>Counts.</b> Papers are de-duplicated to one record per author per article across all 24 UTD-ranked journals. MKTG-4 journals are JCR, JM, JMR, and Marketing Science; Management Science is shown separately in the author table, with the remaining UTD journals counted as X-Disc. The dashed line on the share chart marks <b>2005</b>, when the UTD Top-100 rankings rose to prominence. <b>Just-accepted</b> counts are forthcoming / online-first papers (online but not yet assigned to a print issue) for the four marketing journals plus Management Science, via Crossref — these are not year-filtered.</p>
+      <p><b>Table notes.</b> <b>X-Disc</b> = UTD papers in all journals except Journal of Marketing, Journal of Marketing Research, Journal of Consumer Research, Marketing Science, and Management Science. <b>X-Disc %</b> = that X-Disc count / Total UTD papers; Econ top-5 and Psych top-5 are outside UTD and not included. <b>Active yrs</b> = number of distinct calendar years in which the author had at least one publication within the selected range.</p>
       <p><b>Economics &amp; psychology (Econ top-5 / Psych top-5).</b> These columns and chart bars count papers the same cohort authors published in high-prestige journals <i>outside</i> the 24 UTD set. Because those journals are not in the UTD extract, the counts were obtained from <a href="https://openalex.org" target="_blank" rel="noopener">OpenAlex</a>: for each target journal we pulled every article 1990–2025 by ISSN and matched its authors to the cohort using the same conservative name matcher as the just-accepted column. They respect the year-range slider. <b>Economics "top 5":</b> American Economic Review, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, and the Review of Economic Studies. <b>Psychology top-5 (APA):</b> Psychological Science, Journal of Personality and Social Psychology, Psychological Review, Psychological Bulletin, and American Psychologist. Because matching is by author name only (no ORCID or institution disambiguation), treat Econ top-5 / Psych top-5 as a screening estimate — lower-confidence than the UTD-based columns.</p>
       <p><b>Caveats.</b> UTD supplies author <i>names</i>, not stable identifiers, so name-based matching can over- or under-merge scholars. All figures here are <b>descriptive, not causal</b> — see the companion spillover analysis for difference-in-differences estimates and identification caveats.</p>
       <p><b>Source &amp; code.</b> Built from a UTD Top-100 Business School Research Rankings extract. Code and notes: <a href="https://github.com/girishm77/utd-marketing-productivity" target="_blank" rel="noopener">github.com/girishm77/utd-marketing-productivity</a>.</p>
@@ -302,7 +302,7 @@
               <th>Author</th>
               <th>Papers</th>
               <th>MKTG-4</th>
-              <th>CrossDisc</th>
+              <th>X-Disc</th>
               <th>Econ top-5</th>
               <th>Psych top-5</th>
             </tr></thead>
@@ -500,7 +500,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2551,"records":17167,"
     $("jlegend").innerHTML=rows.map(r=>'<button type="button" class="jlink" data-jid="'+esc(r.id)+'"><span class="dot" style="background:'+FCOL[r.field]+'"></span>'+esc(r.name)+'</button>').join("");
   }
 
-  const NOTE={total:"total papers",mkt:"MKTG-4",non:"CrossDisc",pct:"CrossDisc %",econ:"econ top-5",psych:"psych top-5",yrs:"active years",ja:"just-accepted",ms:"Management Science",inst:"university",author:"last name"};
+  const NOTE={total:"total papers",mkt:"MKTG-4",non:"X-Disc",pct:"X-Disc %",econ:"econ top-5",psych:"psych top-5",yrs:"active years",ja:"just-accepted",ms:"Management Science",inst:"university",author:"last name"};
   function renderTable(){
     let rows=authorAgg();
     const ranked=[...rows].sort((a,b)=>(b.total-a.total)||cmpAuthor(a,b));
@@ -574,7 +574,7 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2551,"records":17167,"
     $("dList").innerHTML=rows.map((x,i)=>'<div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:4px 0;border-bottom:1px solid #eef0ee"><span><span class="dot" style="background:'+PIE[i%PIE.length]+'"></span> '+esc(x.name)+'</span><b>'+x.v+'</b></div>').join("");
     if(authorRows){$("dAuthorSection").hidden=false;$("dAuthorTitle").textContent=opts.authorTitle||"AUTHORS AT THIS UNIVERSITY";$("dAuthorNote").textContent=opts.authorNote||fmt(authorRows.length)+" authors ranked by total UTD papers, "+lo+"–"+hi;
       const compact=opts.authorTable==="compact";
-      $("dAuthorHead").innerHTML=compact?'<th>#</th><th>Author</th><th>Papers</th>':'<th>#</th><th>Author</th><th>Papers</th><th>MKTG-4</th><th>Mgmt Sci</th><th>CrossDisc</th><th>Econ top-5</th><th>Psych top-5</th>';
+      $("dAuthorHead").innerHTML=compact?'<th>#</th><th>Author</th><th>Papers</th>':'<th>#</th><th>Author</th><th>Papers</th><th>MKTG-4</th><th>Mgmt Sci</th><th>X-Disc</th><th>Econ top-5</th><th>Psych top-5</th>';
       $("dAuthorRows").innerHTML=authorRows.map((r,i)=>compact?'<tr data-dai="'+r.a+'"><td>'+(i+1)+'</td><td><span class="drawer-author-link">'+esc(r.display||r.author)+'</span></td><td>'+fmt(r.total)+'</td></tr>':'<tr data-dai="'+r.a+'"><td>'+(i+1)+'</td><td><span class="drawer-author-link">'+esc(r.display||r.author)+'</span></td><td>'+fmt(r.total)+'</td><td>'+fmt(r.mkt)+'</td><td>'+fmt(r.ms)+'</td><td>'+fmt(r.non)+'</td><td>'+(r.econ?fmt(r.econ):'<span style="color:#b6bcc6">·</span>')+'</td><td>'+(r.psych?fmt(r.psych):'<span style="color:#b6bcc6">·</span>')+'</td></tr>').join("");
     }else{$("dAuthorSection").hidden=true;$("dAuthorRows").innerHTML="";}
     $("drawer").classList.add("open");$("drawerBd").classList.add("open");$("drawer").setAttribute("aria-hidden","false");
