@@ -159,6 +159,7 @@
   .drawer-author-link:hover{text-decoration:underline;}
   .hmeta{text-align:right;}
   .upd{font-size:11px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums;}
+    .vcount{margin-top:4px;font-variant-numeric:tabular-nums;}.vcount b{color:var(--ink);font-weight:600;}
   details.method{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);margin-top:18px;padding:0 20px;}
   details.method summary{cursor:pointer;font-weight:700;font-size:14px;padding:15px 0;list-style:none;color:var(--ink);}
   details.method summary::-webkit-details-marker{display:none;}
@@ -183,6 +184,7 @@
     <div class="hmeta">
       <div class="period-badge" id="periodBadge">1990 – 2025</div>
       <div class="upd" id="updatedStamp"></div>
+      <div class="upd vcount" id="visitorCount" hidden>👁 <b id="visitorNum">…</b> visits</div>
     </div>
   </header>
 
@@ -623,6 +625,26 @@ const DATA = {"meta":{"period":"1990\u20132025","authors":2551,"records":17167,"
 
   renderMeta();
   refresh();
+})();
+</script>
+<script>
+/* Global visitor counter. Runs in the visitor's browser; counts page hits via a
+   free hosted counter service with graceful fallback. Hidden if both fail. */
+(function(){
+  var NS="utd-mktg-productivity", KEY="visits";
+  var el=document.getElementById("visitorCount"), num=document.getElementById("visitorNum");
+  if(!el||!num) return;
+  function show(n){ num.textContent=Number(n).toLocaleString(); el.hidden=false; }
+  // Primary: Abacus (CountAPI replacement). Fallback: counterapi.dev.
+  fetch("https://abacus.jasoncameron.dev/hit/"+NS+"/"+KEY)
+    .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    .then(function(j){ show(j.value); })
+    .catch(function(){
+      fetch("https://api.counterapi.dev/v1/"+NS+"/"+KEY+"/up")
+        .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+        .then(function(j){ show(j.count!=null?j.count:j.value); })
+        .catch(function(){ /* leave counter hidden */ });
+    });
 })();
 </script>
 </body>
