@@ -581,12 +581,16 @@ const DATA = {"meta":{"period":"1990\u20132026","authors":2561,"records":17294,"
     }else{$("dAuthorSection").hidden=true;$("dAuthorRows").innerHTML="";}
     $("drawer").classList.add("open");$("drawerBd").classList.add("open");$("drawer").setAttribute("aria-hidden","false");
   }
-  function openAuthor(idx){cur={k:"a",id:idx};const d=authorDist(idx),mkt=d.rows.filter(x=>x.field==="Marketing").reduce((s,x)=>s+x.v,0);
-    const extra=(d.e?" \u00b7 "+d.e+" econ":"")+(d.p?" \u00b7 "+d.p+" psych":"");
-    renderDist(DATA.names[idx],esc((DATA.inst[idx]||[]).join(", ")||"\u2014")+" \u00b7 "+d.utd+" UTD papers ("+lo+"\u2013"+hi+") \u00b7 "+mkt+" mktg / "+(d.utd-mkt)+" non-mktg"+extra+(DATA.ja[idx]?" \u00b7 "+DATA.ja[idx]+" just-accepted":""),d.rows,d.total);}
-  function openUni(uni){cur={k:"u",id:uni};const d=uniDist(uni),mkt=d.rows.filter(x=>x.field==="Marketing").reduce((s,x)=>s+x.v,0);
-    const extra=(d.e?" \u00b7 "+d.e+" econ":"")+(d.p?" \u00b7 "+d.p+" psych":"");
-    renderDist(uni,d.authors+" authors \u00b7 "+d.utd+" UTD papers ("+lo+"\u2013"+hi+") \u00b7 "+mkt+" mktg / "+(d.utd-mkt)+" non-mktg"+extra,d.rows,d.total,uniAuthorRows(uni));}
+  function drawerUtdSummary(d){
+    const mkt=d.rows.filter(x=>x.field==="Marketing").reduce((s,x)=>s+x.v,0);
+    const ms=d.rows.filter(x=>x.name==="Management Science").reduce((s,x)=>s+x.v,0);
+    const xdisc=Math.max(0,d.utd-mkt-ms);
+    return "Total UTD "+fmt(d.utd)+". MKTG-4 "+fmt(mkt)+". MgSc "+fmt(ms)+". X-Disc "+fmt(xdisc)+". Econ "+fmt(d.e)+". Psych "+fmt(d.p)+".";
+  }
+  function openAuthor(idx){cur={k:"a",id:idx};const d=authorDist(idx);
+    renderDist(DATA.names[idx],esc((DATA.inst[idx]||[]).join(", ")||"\u2014")+" \u00b7 "+drawerUtdSummary(d),d.rows,d.total);}
+  function openUni(uni){cur={k:"u",id:uni};const d=uniDist(uni);
+    renderDist(uni,d.authors+" authors \u00b7 "+drawerUtdSummary(d),d.rows,d.total,uniAuthorRows(uni));}
   function openJournalById(id){const row=journalRowById(id);if(row)openJournal(row);}
   function openJournal(row){cur={k:"j",id:row.id};const d=journalDist(row),authors=journalAuthorRows(row),where=uniSel==="ALL"?"all universities":uniSel;
     renderDist(row.name,d.authors+" authors \u00b7 "+fmt(d.total)+" papers ("+lo+"\u2013"+hi+") \u00b7 "+where+" \u00b7 "+(row.kind==="utd"?row.field:"outside UTD"),d.rows,d.total,authors,
