@@ -585,7 +585,7 @@ const DATA = {"meta":{"period":"1990\u20132026","authors":2561,"records":17294,"
     const mkt=d.rows.filter(x=>x.field==="Marketing").reduce((s,x)=>s+x.v,0);
     const ms=d.rows.filter(x=>x.name==="Management Science").reduce((s,x)=>s+x.v,0);
     const xdisc=Math.max(0,d.utd-mkt-ms);
-    return "Total UTD "+fmt(d.utd)+". MKTG-4 "+fmt(mkt)+". MgSc "+fmt(ms)+". X-Disc "+fmt(xdisc)+". Econ "+fmt(d.e)+". Psych "+fmt(d.p)+".";
+    return "Total UTD: "+fmt(d.utd)+". MKTG-4: "+fmt(mkt)+". MgSc: "+fmt(ms)+". X-Disc: "+fmt(xdisc)+". Econ: "+fmt(d.e)+". Psych: "+fmt(d.p)+".";
   }
   function openAuthor(idx){cur={k:"a",id:idx};const d=authorDist(idx);
     renderDist(DATA.names[idx],esc((DATA.inst[idx]||[]).join(", ")||"\u2014")+" \u00b7 "+drawerUtdSummary(d),d.rows,d.total);}
