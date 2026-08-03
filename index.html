@@ -170,7 +170,14 @@
   details.method .method-bd b{color:var(--ink);}
   details.method .method-bd a{color:var(--blue);}
   @media(max-width:980px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}}
-  @media(max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .range-box{min-width:0;width:100%}
+    .panel{min-width:0}
+    .tbl-scroll{max-width:100%}
+    .tbl-tools>div{min-width:0;width:100%}
+    .tbl-tools .sel,.tbl-tools .search{max-width:100%}
+  }
 </style>
 </head>
 <body>
@@ -215,6 +222,38 @@
 
   <div class="grid">
     <div class="panel full">
+      <div class="tbl-tools">
+        <div><h3 style="display:inline">Most productive authors</h3>
+          <span class="ph-sub" style="margin-left:8px" id="tblNote"></span>
+          <div class="ph-sub" style="margin-top:3px">Tip: click a blue author or university name to see its journal distribution.</div></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <select id="journalSel" class="sel" style="min-width:170px"></select>
+          <select id="uniSel" class="sel" style="min-width:210px"></select>
+          <input class="search" id="search" placeholder="Search author…">
+        </div>
+      </div>
+      <div class="tbl-scroll">
+      <table id="authTbl">
+        <thead><tr>
+          <th data-k="rank" title="Rank by Total UTD papers (held even when you search or re-sort)">#</th>
+          <th data-k="author">Author</th>
+          <th data-k="total" class="sorted">Total UTD ▾</th>
+          <th data-k="mkt">MKTG-4</th>
+          <th data-k="ms" title="Management Science papers, shown separately from the other non-marketing UTD journals.">Mgmt Sci</th>
+          <th data-k="non" title="All other UTD journals except Journal of Marketing, Journal of Marketing Research, Journal of Consumer Research, Marketing Science, and Management Science.">X-Disc</th>
+          <th data-k="pct" title="UTD cross-disciplinary share excluding Management Science; denominator is Total UTD, so Econ top-5 and Psych top-5 are not included.">X-Disc %</th>
+          <th data-k="econ" title="Papers in the economics 'top 5' (AER, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, Review of Economic Studies). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Econ top-5</th>
+          <th data-k="psych" title="Papers in top-5 APA psychology journals (Psychological Science, JPSP, Psychological Review, Psychological Bulletin, American Psychologist). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Psych top-5</th>
+          <th data-k="yrs" title="Distinct calendar years in which the author had at least one publication (within the selected range)">Active yrs</th>
+          <th data-k="ja">Just acc.</th>
+          <th data-k="inst" style="text-align:left">University</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="panel full">
       <h3>Annual publication output</h3>
       <div class="ph-sub">Marketing vs. X-discipline UTD papers per year, with the count of distinct active authors. Years outside the selected range are dimmed.</div>
       <div class="chart-h tall"><canvas id="trend"></canvas></div>
@@ -237,38 +276,6 @@
       <div class="ph-sub">Total papers by journal in the selected range, colored by field.</div>
       <div class="chart-h"><canvas id="journals"></canvas></div>
       <div class="flegend" id="jlegend"></div>
-    </div>
-  </div>
-
-  <div class="panel full">
-    <div class="tbl-tools">
-      <div><h3 style="display:inline">Most productive authors</h3>
-        <span class="ph-sub" style="margin-left:8px" id="tblNote"></span>
-        <div class="ph-sub" style="margin-top:3px">Tip: click a blue author or university name to see its journal distribution.</div></div>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <select id="journalSel" class="sel" style="min-width:170px"></select>
-        <select id="uniSel" class="sel" style="min-width:210px"></select>
-        <input class="search" id="search" placeholder="Search author…">
-      </div>
-    </div>
-    <div class="tbl-scroll">
-    <table id="authTbl">
-      <thead><tr>
-        <th data-k="rank" title="Rank by Total UTD papers (held even when you search or re-sort)">#</th>
-        <th data-k="author">Author</th>
-        <th data-k="total" class="sorted">Total UTD ▾</th>
-        <th data-k="mkt">MKTG-4</th>
-        <th data-k="ms" title="Management Science papers, shown separately from the other non-marketing UTD journals.">Mgmt Sci</th>
-        <th data-k="non" title="All other UTD journals except Journal of Marketing, Journal of Marketing Research, Journal of Consumer Research, Marketing Science, and Management Science.">X-Disc</th>
-        <th data-k="pct" title="UTD cross-disciplinary share excluding Management Science; denominator is Total UTD, so Econ top-5 and Psych top-5 are not included.">X-Disc %</th>
-        <th data-k="econ" title="Papers in the economics 'top 5' (AER, Econometrica, Journal of Political Economy, Quarterly Journal of Economics, Review of Economic Studies). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Econ top-5</th>
-        <th data-k="psych" title="Papers in top-5 APA psychology journals (Psychological Science, JPSP, Psychological Review, Psychological Bulletin, American Psychologist). Source: OpenAlex; counted within the selected year range. Not a UTD journal.">Psych top-5</th>
-        <th data-k="yrs" title="Distinct calendar years in which the author had at least one publication (within the selected range)">Active yrs</th>
-        <th data-k="ja">Just acc.</th>
-        <th data-k="inst" style="text-align:left">University</th>
-      </tr></thead>
-      <tbody id="tbody"></tbody>
-    </table>
     </div>
   </div>
 
